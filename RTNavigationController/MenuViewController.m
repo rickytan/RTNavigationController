@@ -7,6 +7,7 @@
 //
 
 #import "MenuViewController.h"
+#import "RTSiderViewController.h"
 
 @interface MenuViewController ()
 
@@ -49,7 +50,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 5;
+    return 6;
 }
 
 - (NSString*)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
@@ -86,6 +87,8 @@
         case 5:
             cell.textLabel.text = @"SlideTranslationStyleCustom";
             break;
+        case 6:
+            cell.textLabel.text = @"";
         default:
             break;
     }
@@ -136,9 +139,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([self.delegate respondsToSelector:@selector(menuViewController:didSelectMenuAtIndex:)])
-        [self.delegate menuViewController:self
-                     didSelectMenuAtIndex:indexPath.row];
+    self.siderViewController.translationStyle = indexPath.row;
 }
 
 @end

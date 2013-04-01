@@ -37,6 +37,7 @@
     SAFE_RELEASE(_maskView);
     SAFE_RELEASE(_pan);
     SAFE_RELEASE(_swipe);
+    SAFE_RELEASE(_maskView);
     
     SAFE_DEALLOC(super);
 }
@@ -58,6 +59,7 @@
     _tap.numberOfTapsRequired = 1;
     _tap.numberOfTouchesRequired = 1;
     _tap.delegate = self;
+    _tap.cancelsTouchesInView = YES;
     
     _currentTrans = CGAffineTransformIdentity;
     
@@ -68,6 +70,8 @@
     _maskView.hidden = YES;
     
     self.tapToCenter = YES;
+    self.middleTranslationStyle = MiddleViewTranslationStyleDefault;
+    self.translationStyle = SlideTranslationStyleNormal;
 }
 
 - (void)awakeFromNib
@@ -140,30 +144,39 @@
     switch (state) {
         case SlideStateLeft:
         {
+            [self loadLeftViewController];
+            _currentLeftViewController.view.userInteractionEnabled = NO;
+            
             UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(-4, -8, 8, self.view.bounds.size.height + 16)];
             _currentMiddleViewController.view.layer.shadowColor = [UIColor blackColor].CGColor;
             _currentMiddleViewController.view.layer.shadowOffset = CGSizeZero;
-            _currentMiddleViewController.view.layer.shadowOpacity = 0.7;
+            _currentMiddleViewController.view.layer.shadowOpacity = 0.75;
             _currentMiddleViewController.view.layer.shadowPath = path.CGPath;
-            [self loadLeftViewController];
-            if (_currentRightViewController.isViewLoaded) [_currentRightViewController.view removeFromSuperview];
+            if (_currentRightViewController.isViewLoaded)
+                [_currentRightViewController.view removeFromSuperview];
         }
             break;
         case SlideStateMiddle:
             _currentMiddleViewController.view.layer.shadowOffset = CGSizeZero;
             _currentMiddleViewController.view.layer.shadowColor = NULL;
-            if (_currentLeftViewController.isViewLoaded) [_currentLeftViewController.view removeFromSuperview];
-            if (_currentRightViewController.isViewLoaded) [_currentRightViewController.view removeFromSuperview];
+            _currentMiddleViewController.view.layer.shadowOpacity = 0.0;
+            if (_currentLeftViewController.isViewLoaded)
+                [_currentLeftViewController.view removeFromSuperview];
+            if (_currentRightViewController.isViewLoaded)
+                [_currentRightViewController.view removeFromSuperview];
             break;
         case SlideStateRight:
         {
+            [self loadRightViewController];
+            _currentRightViewController.view.userInteractionEnabled = NO;
+            
             UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(self.view.bounds.size.width-4, -8, 8, self.view.bounds.size.height + 16)];
             _currentMiddleViewController.view.layer.shadowColor = [UIColor blackColor].CGColor;
             _currentMiddleViewController.view.layer.shadowOffset = CGSizeZero;
-            _currentMiddleViewController.view.layer.shadowOpacity = 0.7;
+            _currentMiddleViewController.view.layer.shadowOpacity = 0.75;
             _currentMiddleViewController.view.layer.shadowPath = path.CGPath;
-            [self loadRightViewController];
-            if (_currentLeftViewController.isViewLoaded) [_currentLeftViewController.view removeFromSuperview];
+            if (_currentLeftViewController.isViewLoaded)
+                [_currentLeftViewController.view removeFromSuperview];
         }
         default:
             break;
@@ -215,7 +228,7 @@
         if (self.state == SlideStateMiddle) {
             [self transitionFromViewController:_currentMiddleViewController
                               toViewController:controller
-                                      duration:0.25
+                                      duration:animated?0.25:0.0
                                        options:UIViewAnimationOptionTransitionCrossDissolve | UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionBeginFromCurrentState
                                     animations:^{
                                         
@@ -235,40 +248,47 @@
         
         _currentMiddleViewController.view.userInteractionEnabled = NO;
         
-        [UIView animateWithDuration:0.25
-                              delay:0.0
-                            options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionBeginFromCurrentState
-                         animations:^{
-                             CGAffineTransform tran = {0};
-                             if (self.state == SlideStateLeft) {
-                                 tran = CGAffineTransformMakeTranslation(self.view.bounds.size.width, 0);
-                             }
-                             else if (self.state == SlideStateRight) {
-                                 tran = CGAffineTransformMakeTranslation(-self.view.bounds.size.width, 0);
-                             }
-                             _currentMiddleViewController.view.transform = tran;
-                         }
-                         completion:^(BOOL finished) {
-                             [_currentMiddleViewController.view removeObserver:self
-                                                                    forKeyPath:@"transform"];
-                             controller.view.userInteractionEnabled = NO;
-                             controller.view.frame = self.view.bounds;
-                             controller.view.transform = _currentMiddleViewController.view.transform;
-                             [self.view insertSubview:controller.view
-                                         aboveSubview:_currentMiddleViewController.view];
-                             [_currentMiddleViewController.view removeFromSuperview];
-                             
-                             [_currentMiddleViewController removeFromParentViewController];
-                             
-                             _currentMiddleViewController = controller;
-                             [_currentMiddleViewController.view addObserver:self
-                                                                 forKeyPath:@"transform"
-                                                                    options:NSKeyValueObservingOptionNew
-                                                                    context:NULL];
-                             if (!self.stayAsideAfterSetNewMiddleController)
-                                 [self slideToMiddleAnimated:animated];
-                         }];
+        void(^block)(BOOL) = ^(BOOL finished){
+            [_currentMiddleViewController.view removeObserver:self
+                                                   forKeyPath:@"transform"];
+            controller.view.userInteractionEnabled = NO;
+            controller.view.frame = self.view.bounds;
+            controller.view.transform = _currentMiddleViewController.view.transform;
+            [self.view insertSubview:controller.view
+                        aboveSubview:_currentMiddleViewController.view];
+            [_currentMiddleViewController.view removeFromSuperview];
+            
+            [_currentMiddleViewController removeFromParentViewController];
+            
+            _currentMiddleViewController = controller;
+            [_currentMiddleViewController.view addObserver:self
+                                                forKeyPath:@"transform"
+                                                   options:NSKeyValueObservingOptionNew
+                                                   context:NULL];
+            
+            if (!self.stayAsideAfterSetNewMiddleController)
+                [self slideToMiddleAnimated:animated];
+        };
         
+        if (self.middleTranslationStyle == MiddleViewTranslationStyleStay) {
+            block(YES);
+        }
+        else if (self.middleTranslationStyle == MiddleViewTranslationStyleBackIn) {
+            [UIView animateWithDuration:animated?0.25:0.0
+                                  delay:0.0
+                                options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionBeginFromCurrentState
+                             animations:^{
+                                 CGAffineTransform tran = {0};
+                                 if (self.state == SlideStateLeft) {
+                                     tran = CGAffineTransformMakeTranslation(self.view.bounds.size.width, 0);
+                                 }
+                                 else if (self.state == SlideStateRight) {
+                                     tran = CGAffineTransformMakeTranslation(-self.view.bounds.size.width, 0);
+                                 }
+                                 _currentMiddleViewController.view.transform = tran;
+                             }
+                             completion:block];
+        }
     }
     else if (!self.stayAsideAfterSetNewMiddleController) {
         [self slideToMiddleAnimated:animated];
@@ -358,6 +378,11 @@
         case UIGestureRecognizerStateBegan:
         {
             _currentMiddleViewController.view.userInteractionEnabled = NO;
+            if (_currentLeftViewController.isViewLoaded)
+                _currentLeftViewController.view.userInteractionEnabled = NO;
+            if (_currentRightViewController.isViewLoaded)
+                _currentRightViewController.view.userInteractionEnabled = NO;
+            
             _currentTrans = _currentMiddleViewController.view.transform;
         }
             break;
@@ -415,9 +440,17 @@
 
 - (void)onTap:(UITapGestureRecognizer *)tap
 {
-    if (_tap.state == UIGestureRecognizerStateEnded) {
-        [self slideToMiddleAnimated:YES];
+    switch (_tap.state) {
+        case UIGestureRecognizerStateBegan:
+            
+            break;
+        case UIGestureRecognizerStateEnded:
+            [self slideToMiddleAnimated:YES];
+            break;
+        default:
+            break;
     }
+
 }
 
 - (void)onSwipe:(UISwipeGestureRecognizer *)swipe
@@ -531,15 +564,18 @@
 
 - (void)slideToLeftAnimated:(BOOL)animated
 {
+    [self loadRightViewController];
+    
+    _currentRightViewController.view.userInteractionEnabled = NO;
     _currentMiddleViewController.view.userInteractionEnabled = NO;
     [UIView animateWithDuration:0.25
-                          delay:0.1
-                        options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionBeginFromCurrentState
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
                      animations:^{
                          _currentMiddleViewController.view.transform = CGAffineTransformMakeTranslation(-(self.view.bounds.size.width - [self marginForSlidingLeft]), 0);
                      }
                      completion:^(BOOL finished) {
-                         _currentMiddleViewController.view.userInteractionEnabled = YES;
+                         _currentRightViewController.view.userInteractionEnabled = YES;
                          _currentTrans = _currentMiddleViewController.view.transform;
                      }];
 }
@@ -548,8 +584,8 @@
 {
     _currentMiddleViewController.view.userInteractionEnabled = NO;
     [UIView animateWithDuration:0.25
-                          delay:0.1
-                        options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionBeginFromCurrentState
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
                      animations:^{
                          _currentMiddleViewController.view.transform = CGAffineTransformIdentity;
                      }
@@ -563,15 +599,18 @@
 
 - (void)slideToRightAnimated:(BOOL)animated
 {
+    [self loadLeftViewController];
+    
+    _currentLeftViewController.view.userInteractionEnabled = NO;
     _currentMiddleViewController.view.userInteractionEnabled = NO;
     [UIView animateWithDuration:0.25
-                          delay:0.1
-                        options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionBeginFromCurrentState
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
                      animations:^{
                          _currentMiddleViewController.view.transform = CGAffineTransformMakeTranslation((self.view.bounds.size.width - [self marginForSlidingRight]), 0);
                      }
                      completion:^(BOOL finished) {
-                         _currentMiddleViewController.view.userInteractionEnabled = YES;
+                         _currentLeftViewController.view.userInteractionEnabled = YES;
                          _currentTrans = _currentMiddleViewController.view.transform;
                      }];
 }

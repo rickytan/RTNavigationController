@@ -7,6 +7,10 @@
 //
 
 #import "SettingViewController.h"
+#import "RTSiderViewController.h"
+#import "RedViewController.h"
+#import "BlueViewController.h"
+#import "MainViewController.h"
 
 @interface SettingViewController ()
 
@@ -26,10 +30,10 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
- 
+    
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
@@ -50,7 +54,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if (section == 0)
-        return 2;
+        return 3;
     return 3;
 }
 
@@ -64,15 +68,30 @@
     }
     
     // Configure the cell...
-    switch (indexPath.row) {
-        case 0:
-            cell.textLabel.text = @"Red View";
-            break;
-        case 1:
-            cell.textLabel.text = @"Blue View";
-            break;
-        default:
-            break;
+    if (indexPath.section == 0) {
+        switch (indexPath.row) {
+            case 0:
+                cell.textLabel.text = @"Main View";
+                break;
+            case 1:
+                cell.textLabel.text = @"Red View";
+                break;
+            case 2:
+                cell.textLabel.text = @"Blue View";
+                break;
+            default:
+                break;
+        }
+    }
+    else {
+        switch (indexPath.row) {
+            case 0:
+                cell.textLabel.text = @"";
+                break;
+                
+            default:
+                break;
+        }
     }
     
     return cell;
@@ -82,9 +101,21 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if ([self.delegate respondsToSelector:@selector(settingViewController:didSelectSettingAtIndex:)])
-        [self.delegate settingViewController:self
-                     didSelectSettingAtIndex:indexPath.row];
+    if (indexPath.section == 0) {
+        switch (indexPath.row) {
+            case 0:
+                [self.siderViewController setMiddleViewController:[[[MainViewController alloc] init] autorelease] animated:YES];
+                break;
+            case 1:
+                [self.siderViewController setMiddleViewController:[[[RedViewController alloc] init] autorelease] animated:YES];
+                break;
+            case 2:
+                [self.siderViewController setMiddleViewController:[[[BlueViewController alloc] init] autorelease] animated:YES];
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 @end

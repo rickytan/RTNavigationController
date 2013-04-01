@@ -25,6 +25,8 @@
 		9C3420C3170949D000FCEC5D /* RedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C3420C2170949CF00FCEC5D /* RedViewController.m */; };
 		9C3420C6170949EE00FCEC5D /* BlueViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C3420C5170949EE00FCEC5D /* BlueViewController.m */; };
 		9C3420C817095A5F00FCEC5D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C3420C717095A5E00FCEC5D /* QuartzCore.framework */; };
+		9C3420CC1709B1A300FCEC5D /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C3420CA1709B1A300FCEC5D /* MainViewController.m */; };
+		9C3420CD1709B1A300FCEC5D /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9C3420CB1709B1A300FCEC5D /* MainViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,6 +59,9 @@
 		9C3420C4170949EE00FCEC5D /* BlueViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlueViewController.h; sourceTree = "<group>"; };
 		9C3420C5170949EE00FCEC5D /* BlueViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlueViewController.m; sourceTree = "<group>"; };
 		9C3420C717095A5E00FCEC5D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		9C3420C91709B1A200FCEC5D /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
+		9C3420CA1709B1A300FCEC5D /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
+		9C3420CB1709B1A300FCEC5D /* MainViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +125,9 @@
 				9C3420A61707410700FCEC5D /* ViewController.h */,
 				9C3420A71707410700FCEC5D /* ViewController.m */,
 				9C3420A91707410700FCEC5D /* ViewController.xib */,
+				9C3420C91709B1A200FCEC5D /* MainViewController.h */,
+				9C3420CA1709B1A300FCEC5D /* MainViewController.m */,
+				9C3420CB1709B1A300FCEC5D /* MainViewController.xib */,
 			);
 			path = RTNavigationController;
 			sourceTree = "<group>";
@@ -205,6 +213,7 @@
 				9C3420A31707410700FCEC5D /* Default@2x.png in Resources */,
 				9C3420A51707410700FCEC5D /* Default-568h@2x.png in Resources */,
 				9C3420AB1707410700FCEC5D /* ViewController.xib in Resources */,
+				9C3420CD1709B1A300FCEC5D /* MainViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,6 +233,7 @@
 				9C3420C01709498000FCEC5D /* SettingViewController.m in Sources */,
 				9C3420C3170949D000FCEC5D /* RedViewController.m in Sources */,
 				9C3420C6170949EE00FCEC5D /* BlueViewController.m in Sources */,
+				9C3420CC1709B1A300FCEC5D /* MainViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

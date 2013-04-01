@@ -1,5 +1,5 @@
 //
-//  MenuViewController.h
+//  MainViewController.h
 //  RTNavigationController
 //
 //  Created by ricky on 13-4-1.
@@ -8,5 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MenuViewController : UITableViewController
+@interface MainViewController : UIViewController
+- (IBAction)onLeft:(id)sender;
+- (IBAction)onRight:(id)sender;
 @end

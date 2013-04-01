@@ -7,7 +7,7 @@
 //
 
 #import "ViewController.h"
-
+#import "MainViewController.h"
 
 @interface ViewController ()
 - (IBAction)onButton:(id)sender;
@@ -23,18 +23,16 @@
     sider = [[RTSiderViewController alloc] init];
     sider.dataSource = self;
     sider.view.frame = self.view.bounds;
-    sider.translationStyle = SlideTranslationStylePull;
+    sider.middleTranslationStyle = MiddleViewTranslationStyleStay;
     
-    [sider setMiddleViewController:[[[RedViewController alloc] init] autorelease]
+    [sider setMiddleViewController:[[[MainViewController alloc] init] autorelease]
                           animated:YES];
     
     MenuViewController *menu = [[[MenuViewController alloc] initWithStyle:UITableViewStylePlain] autorelease];
-    menu.delegate = self;
     
     [sider setLeftViewController:menu];
     
     SettingViewController *setting = [[[SettingViewController alloc] initWithStyle:UITableViewStyleGrouped] autorelease];
-    setting.delegate = self;
     
     [sider setRightViewController:setting];
     
@@ -69,23 +67,19 @@
     return 100.0;
 }
 
-#pragma mark - Menu Delegate
-
-- (void)menuViewController:(MenuViewController *)menu
-      didSelectMenuAtIndex:(NSUInteger)index
+- (CATransform3D)siderViewController:(RTSiderViewController *)controller
+                 transformWithOffset:(CGFloat)offset
+                       andFadingView:(UIView *)view
 {
-    sider.translationStyle = index;
-}
-
-#pragma mark - Setting Delegate
-
-- (void)settingViewController:(SettingViewController *)setting
-      didSelectSettingAtIndex:(NSUInteger)index
-{
-    if (index == 0)
-        [sider setMiddleViewController:[[[RedViewController alloc] init] autorelease] animated:YES];
-    else if (index == 1)
-        [sider setMiddleViewController:[[[BlueViewController alloc] init] autorelease] animated:YES];
+    view.hidden = NO;
+    view.alpha = 1.0 - offset;
+    
+    CGFloat depth = 200.f;
+    CGFloat angle = 30 * (1.0 - offset) * M_PI / 180;
+    CATransform3D t = CATransform3DMakeTranslation(0, 0, -depth);
+    t = CATransform3DRotate(t, angle, 0, -1, 0);
+    t= CATransform3DTranslate(t, 0, 0, depth * (2.0 - 1.0 / cosf(angle)));
+    return t;
 }
 
 @end

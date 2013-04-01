@@ -17,9 +17,7 @@
 #import "RTSiderViewController.h"
 
 @interface ViewController : UIViewController
-<RTSiderViewControllerDatasource,
-SettingDelegate,
-MenuDelegate>
+<RTSiderViewControllerDatasource>
 {
     RTSiderViewController           * sider;
 }

@@ -49,6 +49,12 @@ typedef enum {
     SlideStateRight
 }SlideState;
 
+typedef enum {
+    MiddleViewTranslationStyleStay,
+    MiddleViewTranslationStyleBackIn,
+    MiddleViewTranslationStyleDefault = MiddleViewTranslationStyleBackIn
+}MiddleViewTranslationStyle;
+
 @protocol RTSiderViewControllerDelegate <NSObject>
 
 - (BOOL)siderViewController:(RTSiderViewController*)controller
@@ -85,7 +91,9 @@ typedef enum {
 @property (nonatomic, assign) id<RTSiderViewControllerDatasource> dataSource;
 @property (nonatomic, assign) id<RTSiderViewControllerDelegate> delegate;
 @property (nonatomic, assign) SlideTranslationStyle translationStyle;
+@property (nonatomic, assign) MiddleViewTranslationStyle middleTranslationStyle;
 @property (nonatomic, readonly) SlideState state;
+@property (nonatomic, assign) BOOL allowOverDrag;   // default YES
 @property (nonatomic, assign) BOOL stayAsideAfterSetNewMiddleController;    // default NO
 @property (nonatomic, assign) BOOL tapToCenter;    // default YES
 
