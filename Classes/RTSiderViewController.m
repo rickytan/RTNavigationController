@@ -506,11 +506,11 @@
     CGFloat offset = _currentMiddleViewController.view.frame.origin.x;
     if (offset > 0) {
         self.state = SlideStateLeft;
-        offset = offset / (self.view.bounds.size.width - [self marginForSlidingRight]);
+        offset = MIN(offset / (self.view.bounds.size.width - [self marginForSlidingRight]),1.0);
     }
     else if (offset < 0) {
         self.state = SlideStateRight;
-        offset = offset / (self.view.bounds.size.width - [self marginForSlidingLeft]);
+        offset = MAX(offset / (self.view.bounds.size.width - [self marginForSlidingLeft]),-1.0);
     }
     return offset;
 }
