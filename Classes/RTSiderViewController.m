@@ -92,7 +92,7 @@
 {
     [super loadView];
     self.view.backgroundColor = [UIColor clearColor];
-    self.view.multipleTouchEnabled = NO;
+    //self.view.multipleTouchEnabled = NO;
     
     _maskView.frame = self.view.bounds;
     [self.view addSubview:_maskView];
@@ -378,10 +378,12 @@
         case UIGestureRecognizerStateBegan:
         {
             _currentMiddleViewController.view.userInteractionEnabled = NO;
+            /*
             if (_currentLeftViewController.isViewLoaded)
                 _currentLeftViewController.view.userInteractionEnabled = NO;
             if (_currentRightViewController.isViewLoaded)
                 _currentRightViewController.view.userInteractionEnabled = NO;
+             */
             
             _currentTrans = _currentMiddleViewController.view.transform;
         }
@@ -524,7 +526,8 @@
             break;
         case SlideTranslationStyleFade:
             _maskView.hidden = NO;
-            _maskView.alpha = 0.9 * (1 - fabs(offset));
+            _maskView.alpha = (1 - fabs(offset));
+            controller.view.transform = CGAffineTransformIdentity;
             break;
         case SlideTranslationStylePull:
             if (offset > 0) {
@@ -548,7 +551,7 @@
             break;
         case SlideTranslationStyleHalfPull:
             _maskView.hidden = NO;
-            _maskView.alpha = 0.9 * (1 - fabs(offset));
+            _maskView.alpha = (1 - fabs(offset));
             offset /= 2;
             if (offset > 0) {
                 CGFloat w = self.view.bounds.size.width - [self marginForSlidingRight];
@@ -571,13 +574,13 @@
             break;
         case SlideTranslationStyleDeeperAndFade:
             _maskView.hidden = NO;
-            _maskView.alpha = 0.9 * (1 - fabs(offset));
-            controller.view.layer.transform = CATransform3DMakeTranslation(0, 0, -20 + 16 * fabsf(offset));
+            _maskView.alpha = (1 - fabs(offset));
+            controller.view.layer.transform = CATransform3DMakeTranslation(0, 0, -28 + 24 * fabsf(offset));
             break;
         case SlideTranslationStyleLean:
         {
             _maskView.hidden = NO;
-            _maskView.alpha = 0.9 * (1 - fabs(offset));
+            _maskView.alpha = (1 - fabs(offset));
             CGFloat angle = 4.0 * (1-fabs(offset)) * M_PI/180;
             CGFloat z = self.view.bounds.size.height/2 * sinf(angle);
             CATransform3D t = CATransform3DMakeTranslation(0, 0, -4 - z);
@@ -597,6 +600,9 @@
 
 - (void)slideToLeftAnimated:(BOOL)animated
 {
+    if (!_currentRightViewController)
+        return;
+    
     [self loadRightViewController];
     
     _currentRightViewController.view.userInteractionEnabled = NO;
@@ -616,10 +622,12 @@
 - (void)slideToMiddleAnimated:(BOOL)animated
 {
     _currentMiddleViewController.view.userInteractionEnabled = NO;
+    /*
     if (_currentLeftViewController.isViewLoaded)
         _currentLeftViewController.view.userInteractionEnabled = NO;
     if (_currentRightViewController.isViewLoaded)
         _currentRightViewController.view.userInteractionEnabled = NO;
+     */
     
     [UIView animateWithDuration:0.25
                           delay:0.0
@@ -636,6 +644,9 @@
 
 - (void)slideToRightAnimated:(BOOL)animated
 {
+    if (!_currentLeftViewController)
+        return;
+    
     [self loadLeftViewController];
     
     _currentLeftViewController.view.userInteractionEnabled = NO;
