@@ -47,7 +47,6 @@
     _pan = [[UIPanGestureRecognizer alloc] initWithTarget:self
                                                    action:@selector(onPan:)];
     _pan.delegate = self;
-    _pan.cancelsTouchesInView = YES;
     
     _swipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self
                                                        action:@selector(onSwipe:)];
@@ -59,7 +58,6 @@
     _tap.numberOfTapsRequired = 1;
     _tap.numberOfTouchesRequired = 1;
     _tap.delegate = self;
-    _tap.cancelsTouchesInView = YES;
     
     _currentTrans = CGAffineTransformIdentity;
     
@@ -103,7 +101,7 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     [self.view addGestureRecognizer:_pan];
-    [self.view addGestureRecognizer:_swipe];
+    //[self.view addGestureRecognizer:_swipe];
     [self.view addGestureRecognizer:_tap];
     
     CATransform3D t = CATransform3DIdentity;
@@ -656,13 +654,17 @@
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
        shouldReceiveTouch:(UITouch *)touch
 {
-    return YES;
+    return NO;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
 shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    
+    NSLog(@"Gesture %@ with %@",NSStringFromClass(gestureRecognizer.class),NSStringFromClass(otherGestureRecognizer.class));
+    if (_pan == gestureRecognizer) {
+        if ([otherGestureRecognizer.view isKindOfClass:[UIScrollView class]])
+            return NO;
+    }
     return YES;
 }
 
