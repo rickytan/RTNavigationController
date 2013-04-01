@@ -86,9 +86,31 @@
     else {
         switch (indexPath.row) {
             case 0:
-                cell.textLabel.text = @"";
-                break;
+            {
+                cell.textLabel.text = @"Allow Over Drag";
                 
+                UISwitch *allow = [[UISwitch alloc] init];
+                allow.tag = 10;
+                allow.on = self.siderViewController.allowOverDrag;
+                [allow addTarget:self
+                          action:@selector(onAllow:)
+                forControlEvents:UIControlEventValueChanged];
+                cell.accessoryView = allow;
+                [allow release];
+            }
+                break;
+            case 1:
+            {
+                cell.textLabel.text = @"Tap To Center";
+                
+                UISwitch *allow = [[UISwitch alloc] init];
+                allow.on = self.siderViewController.tapToCenter;
+                [allow addTarget:self
+                          action:@selector(onAllow:)
+                forControlEvents:UIControlEventValueChanged];
+                cell.accessoryView = allow;
+                [allow release];
+            }
             default:
                 break;
         }
@@ -116,6 +138,16 @@
                 break;
         }
     }
+}
+
+#pragma mark - Methods
+
+- (void)onAllow:(UISwitch*)on
+{
+    if (on.tag == 10)
+        self.siderViewController.allowOverDrag = on.isOn;
+    else
+        self.siderViewController.tapToCenter = on.isOn;
 }
 
 @end

@@ -38,15 +38,16 @@ typedef enum {
     SlideTranslationStyleNormal,
     SlideTranslationStyleFade,
     SlideTranslationStylePull,
+    SlideTranslationStyleHalfPull,
     SlideTranslationStyleDeeperAndFade,
     SlideTranslationStyleLean,
     SlideTranslationStyleCustom
 }SlideTranslationStyle;
 
 typedef enum {
-    SlideStateMiddle,
-    SlideStateLeft,
-    SlideStateRight
+    SlideStateMiddle = 0,
+    SlideStateLeft = 1,
+    SlideStateRight = -1
 }SlideState;
 
 typedef enum {
@@ -84,7 +85,7 @@ typedef enum {
     struct {
         unsigned int shouldAdjustLeftWidth:1;
         unsigned int shouldAdjustRightWidth:1;
-        //unsigned int isChangingMiddelViewController:1;
+        unsigned int isAnimating:1;
     } _sideControllerFlags;
 }
 
@@ -94,7 +95,6 @@ typedef enum {
 @property (nonatomic, assign) MiddleViewTranslationStyle middleTranslationStyle;
 @property (nonatomic, readonly) SlideState state;
 @property (nonatomic, assign) BOOL allowOverDrag;   // default YES
-@property (nonatomic, assign) BOOL stayAsideAfterSetNewMiddleController;    // default NO
 @property (nonatomic, assign) BOOL tapToCenter;    // default YES
 
 - (void)setMiddleViewController:(UIViewController*)controller

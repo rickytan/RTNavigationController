@@ -64,7 +64,7 @@
 
 - (CGFloat)siderViewControllerMarginForSlidingToLeft:(RTSiderViewController *)controller
 {
-    return 100.0;
+    return 44.0;
 }
 
 - (CATransform3D)siderViewController:(RTSiderViewController *)controller
@@ -72,13 +72,9 @@
                        andFadingView:(UIView *)view
 {
     view.hidden = NO;
-    view.alpha = 1.0 - offset;
-    
-    CGFloat depth = 200.f;
-    CGFloat angle = 30 * (1.0 - offset) * M_PI / 180;
-    CATransform3D t = CATransform3DMakeTranslation(0, 0, -depth);
-    t = CATransform3DRotate(t, angle, 0, -1, 0);
-    t= CATransform3DTranslate(t, 0, 0, depth * (2.0 - 1.0 / cosf(angle)));
+    view.alpha = 1.0 - fabs(offset);
+
+    CATransform3D t = CATransform3DMakeTranslation(0, -controller.view.bounds.size.height * (1 - fabs(offset)), 0);
     return t;
 }
 

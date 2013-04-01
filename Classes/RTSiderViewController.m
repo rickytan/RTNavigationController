@@ -58,6 +58,7 @@
     _tap.numberOfTapsRequired = 1;
     _tap.numberOfTouchesRequired = 1;
     _tap.delegate = self;
+    [_tap requireGestureRecognizerToFail:_pan];
     
     _currentTrans = CGAffineTransformIdentity;
     
@@ -91,6 +92,7 @@
 {
     [super loadView];
     self.view.backgroundColor = [UIColor clearColor];
+    self.view.multipleTouchEnabled = NO;
     
     _maskView.frame = self.view.bounds;
     [self.view addSubview:_maskView];
@@ -100,6 +102,7 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
+    
     [self.view addGestureRecognizer:_pan];
     //[self.view addGestureRecognizer:_swipe];
     [self.view addGestureRecognizer:_tap];
@@ -211,7 +214,7 @@
             _currentMiddleViewController = controller;
             [_currentMiddleViewController.view addObserver:self
                                                 forKeyPath:@"transform"
-                                                   options:NSKeyValueObservingOptionNew
+                                                   options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
                                                    context:NULL];
             if (self.isViewLoaded) {
                 _currentMiddleViewController.view.frame = self.view.bounds;
@@ -238,7 +241,7 @@
                                         _currentMiddleViewController = controller;
                                         [_currentMiddleViewController.view addObserver:self
                                                                             forKeyPath:@"transform"
-                                                                               options:NSKeyValueObservingOptionNew
+                                                                               options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
                                                                                context:NULL];
                                     }];
             return;
@@ -264,8 +267,7 @@
                                                    options:NSKeyValueObservingOptionNew
                                                    context:NULL];
             
-            if (!self.stayAsideAfterSetNewMiddleController)
-                [self slideToMiddleAnimated:animated];
+            [self slideToMiddleAnimated:animated];
         };
         
         if (self.middleTranslationStyle == MiddleViewTranslationStyleStay) {
@@ -288,7 +290,7 @@
                              completion:block];
         }
     }
-    else if (!self.stayAsideAfterSetNewMiddleController) {
+    else {
         [self slideToMiddleAnimated:animated];
     }
 }
@@ -387,9 +389,19 @@
         case UIGestureRecognizerStateChanged:
         {
             CGPoint p = [_pan translationInView:self.view];
-            if ((p.x + _currentTrans.tx > 0 && _currentLeftViewController) ||
-                (p.x + _currentTrans.tx < 0 && _currentRightViewController)) {
-                _currentMiddleViewController.view.transform = CGAffineTransformConcat(_currentTrans, CGAffineTransformMakeTranslation(p.x, 0));
+            CGFloat tx = p.x + _currentTrans.tx;
+            
+            if ((tx > 0 && _currentLeftViewController) ||
+                (tx < 0 && _currentRightViewController)) {
+                if (!self.allowOverDrag) {
+                    if (self.state == SlideStateLeft &&
+                        tx > CGRectGetWidth(self.view.bounds) - [self marginForSlidingRight])
+                        tx = CGRectGetWidth(self.view.bounds) - [self marginForSlidingRight];
+                    else if (self.state == SlideStateRight &&
+                             tx < -(CGRectGetWidth(self.view.bounds) - [self marginForSlidingLeft]))
+                        tx = -(CGRectGetWidth(self.view.bounds) - [self marginForSlidingLeft]);
+                }
+                _currentMiddleViewController.view.transform = CGAffineTransformMakeTranslation(tx, 0);
             }
             else
                 _currentMiddleViewController.view.transform = CGAffineTransformIdentity;
@@ -448,7 +460,7 @@
         default:
             break;
     }
-
+    
 }
 
 - (void)onSwipe:(UISwipeGestureRecognizer *)swipe
@@ -475,7 +487,7 @@
                         change:(NSDictionary *)change
                        context:(void *)context
 {
-    if (object == _currentMiddleViewController.view) {
+    if (!_sideControllerFlags.isAnimating && object == _currentMiddleViewController.view) {
         CGFloat offset = [self normalizedOffset];
         
         if (self.state == SlideStateLeft)
@@ -534,6 +546,29 @@
                 }
             }
             break;
+        case SlideTranslationStyleHalfPull:
+            _maskView.hidden = NO;
+            _maskView.alpha = 0.9 * (1 - fabs(offset));
+            offset /= 2;
+            if (offset > 0) {
+                CGFloat w = self.view.bounds.size.width - [self marginForSlidingRight];
+                controller.view.transform = CGAffineTransformMakeTranslation((offset - 0.5)*w, 0);
+            }
+            else if (offset < 0) {
+                CGFloat w = self.view.bounds.size.width - [self marginForSlidingLeft];
+                controller.view.transform = CGAffineTransformMakeTranslation((offset + 0.5)*w, 0);
+            }
+            else {
+                if (self.state == SlideStateLeft) {
+                    CGFloat w = self.view.bounds.size.width - [self marginForSlidingRight];
+                    controller.view.transform = CGAffineTransformMakeTranslation(-0.5*w, 0);
+                }
+                else if (self.state == SlideStateRight) {
+                    CGFloat w = self.view.bounds.size.width - [self marginForSlidingLeft];
+                    controller.view.transform = CGAffineTransformMakeTranslation(0.5*w, 0);
+                }
+            }
+            break;
         case SlideTranslationStyleDeeperAndFade:
             _maskView.hidden = NO;
             _maskView.alpha = 0.9 * (1 - fabs(offset));
@@ -566,6 +601,7 @@
     
     _currentRightViewController.view.userInteractionEnabled = NO;
     _currentMiddleViewController.view.userInteractionEnabled = NO;
+    
     [UIView animateWithDuration:0.25
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
@@ -574,13 +610,17 @@
                      }
                      completion:^(BOOL finished) {
                          _currentRightViewController.view.userInteractionEnabled = YES;
-                         _currentTrans = _currentMiddleViewController.view.transform;
                      }];
 }
 
 - (void)slideToMiddleAnimated:(BOOL)animated
 {
     _currentMiddleViewController.view.userInteractionEnabled = NO;
+    if (_currentLeftViewController.isViewLoaded)
+        _currentLeftViewController.view.userInteractionEnabled = NO;
+    if (_currentRightViewController.isViewLoaded)
+        _currentRightViewController.view.userInteractionEnabled = NO;
+    
     [UIView animateWithDuration:0.25
                           delay:0.0
                         options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
@@ -591,7 +631,6 @@
                          if (finished)
                              self.state = SlideStateMiddle;
                          _currentMiddleViewController.view.userInteractionEnabled = YES;
-                         _currentTrans = _currentMiddleViewController.view.transform;
                      }];
 }
 
@@ -609,7 +648,6 @@
                      }
                      completion:^(BOOL finished) {
                          _currentLeftViewController.view.userInteractionEnabled = YES;
-                         _currentTrans = _currentMiddleViewController.view.transform;
                      }];
 }
 
@@ -631,20 +669,26 @@
 
 - (void)loadRightViewController
 {
-    _currentRightViewController.view.transform = CGAffineTransformIdentity;
-    if (_sideControllerFlags.shouldAdjustRightWidth)
-        _currentRightViewController.view.frame = UIEdgeInsetsInsetRect(self.view.bounds, UIEdgeInsetsMake(0, [self marginForSlidingLeft], 0, 0));
-    else _currentRightViewController.view.frame = self.view.bounds;
+    if (!_currentRightViewController.isViewLoaded) {
+        _currentRightViewController.view.transform = CGAffineTransformIdentity;
+        if (_sideControllerFlags.shouldAdjustRightWidth)
+            _currentRightViewController.view.frame = UIEdgeInsetsInsetRect(self.view.bounds, UIEdgeInsetsMake(0, [self marginForSlidingLeft], 0, 0));
+        else
+            _currentRightViewController.view.frame = self.view.bounds;
+    }
     [self.view insertSubview:_currentRightViewController.view
                 belowSubview:_maskView];
 }
 
 - (void)loadLeftViewController
 {
-    _currentLeftViewController.view.transform = CGAffineTransformIdentity;
-    if (_sideControllerFlags.shouldAdjustLeftWidth)
-        _currentLeftViewController.view.frame = UIEdgeInsetsInsetRect(self.view.bounds, UIEdgeInsetsMake(0, 0, 0, [self marginForSlidingRight]));
-    else _currentLeftViewController.view.frame = self.view.bounds;
+    if (!_currentLeftViewController.isViewLoaded) {
+        _currentLeftViewController.view.transform = CGAffineTransformIdentity;
+        if (_sideControllerFlags.shouldAdjustLeftWidth)
+            _currentLeftViewController.view.frame = UIEdgeInsetsInsetRect(self.view.bounds, UIEdgeInsetsMake(0, 0, 0, [self marginForSlidingRight]));
+        else
+            _currentLeftViewController.view.frame = self.view.bounds;
+    }
     [self.view insertSubview:_currentLeftViewController.view
                 belowSubview:_maskView];
 }
@@ -654,16 +698,19 @@
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
        shouldReceiveTouch:(UITouch *)touch
 {
-    return NO;
+    return YES;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
 shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    NSLog(@"Gesture %@ with %@",NSStringFromClass(gestureRecognizer.class),NSStringFromClass(otherGestureRecognizer.class));
+    if ((_tap == gestureRecognizer && _pan == otherGestureRecognizer) ||
+        (_pan == gestureRecognizer && _tap == otherGestureRecognizer))
+        return NO;
     if (_pan == gestureRecognizer) {
-        if ([otherGestureRecognizer.view isKindOfClass:[UIScrollView class]])
+        if ([otherGestureRecognizer.view isKindOfClass:[UIScrollView class]]) {
             return NO;
+        }
     }
     return YES;
 }
