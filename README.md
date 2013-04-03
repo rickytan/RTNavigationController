@@ -43,6 +43,6 @@ add "RTSiderViewControll.*" to your project and import file "RTSiderViewControll
     }
 
 
-![Screenshot0](http://dl.dropbox.com/u/46239535/RTNavigationController/1.png)
-![Screenshot1](http://dl.dropbox.com/u/46239535/RTNavigationController/2.png)
+![Screenshot0](http://dl.dropbox.com/u/46239535/RTNavigationController/2.png)
+![Screenshot1](http://dl.dropbox.com/u/46239535/RTNavigationController/1.png)
 ![Screenshot2](http://dl.dropbox.com/u/46239535/RTNavigationController/3.png)
