@@ -33,21 +33,25 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    NSLog(@"%@ will appear",NSStringFromClass(self.class));
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    NSLog(@"%@ did appear",NSStringFromClass(self.class));
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    NSLog(@"%@ will disappear",NSStringFromClass(self.class));
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
+    NSLog(@"%@ did disappear",NSStringFromClass(self.class));
 }
 
 - (void)viewDidUnload

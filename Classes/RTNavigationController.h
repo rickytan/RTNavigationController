@@ -32,6 +32,14 @@
     UIPanGestureRecognizer                  * _pan;
     
     UIViewController                        * _topViewController;
+    
+    UINavigationBar                         * _navigationBar;
+    UINavigationBar                         * _navigationBarTmp;
+    
+    UIView                                  * _contentView;
+    UIView                                  * _contentViewTmp;
+    
+    UIView                                  * _viewTmp;
 }
 
 @property (nonatomic, strong) id<RTNavigationControllerDelegate> delegate;
@@ -39,5 +47,11 @@
 
 
 - (id)initWithRootViewController:(UIViewController*)controller;
+
+- (void)pushViewController:(UIViewController*)viewController animated:(BOOL)animated;
+- (UIViewController*)popViewControllerAnimated:(BOOL)animated;
+- (NSArray*)popToRootViewControllerAnimated:(BOOL)animated;
+- (NSArray*)popToViewController:(UIViewController *)viewController
+                       animated:(BOOL)animated;
 
 @end

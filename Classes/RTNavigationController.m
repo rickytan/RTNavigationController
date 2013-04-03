@@ -8,10 +8,12 @@
 
 #import "RTNavigationController.h"
 
-@interface RTNavigationController ()
+@interface RTNavigationController () <UINavigationBarDelegate>
 
 - (void)onPan:(UIPanGestureRecognizer*)pan;
 - (void)onSwipe:(UISwipeGestureRecognizer*)swipe;
+
+- (void)swapViews;
 
 @end
 
@@ -49,10 +51,30 @@
     self = [self init];
     if (self) {
         
-        [self addChildViewController:controller];
-        _topViewController = controller;
+        [self pushViewController:controller
+                        animated:NO];
     }
     return self;
+}
+
+- (void)loadView
+{
+    [super loadView];
+    
+    _navigationBar = [[UINavigationBar alloc] init];
+    _navigationBar.delegate = self;
+    [_navigationBar sizeToFit];
+    
+    _contentView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(_navigationBar.bounds), CGRectGetWidth(self.view.bounds),
+                                                            CGRectGetHeight(self.view.bounds) - CGRectGetHeight(_navigationBar.bounds))];
+    
+    [self.view addSubview:_contentView];
+    [self.view addSubview:_navigationBar];
+}
+
+- (void)loadViewTmp
+{
+    
 }
 
 - (void)viewDidLoad
@@ -62,8 +84,8 @@
     [self.view addGestureRecognizer:_pan];
     [self.view addGestureRecognizer:_swipe];
     
-    [self.view addSubview:self.topViewController.view];
-    self.topViewController.view.frame = self.view.bounds;
+    [_contentView addSubview:self.topViewController.view];
+    self.topViewController.view.frame = _contentView.bounds;
 }
 
 - (void)didReceiveMemoryWarning
@@ -73,6 +95,21 @@
 }
 
 #pragma mark - Methods
+
+- (void)swapViews
+{
+    SAFE_RELEASE(_navigationBar);
+    SAFE_RELEASE(_contentView);
+    
+    [self.view removeFromSuperview];
+    self.view = _viewTmp;
+    _navigationBar = _navigationBarTmp;
+    _contentView = _contentViewTmp;
+    
+    _navigationBarTmp = nil;
+    _contentViewTmp = nil;
+    _viewTmp = nil;
+}
 
 - (void)onPan:(UIPanGestureRecognizer *)pan
 {
@@ -102,6 +139,34 @@
     }
 }
 
+#pragma mark - Public Methods
+
+- (void)pushViewController:(UIViewController *)viewController
+                  animated:(BOOL)animated
+{
+    [self addChildViewController:viewController];
+    
+    if (!_topViewController) {
+        _topViewController = viewController;
+        if (self.isViewLoaded) {
+            
+        }
+    }
+
+    [_navigationBar pushNavigationItem:viewController.navigationItem
+                              animated:animated];
+    [self transitionFromViewController:self.topViewController
+                      toViewController:viewController
+                              duration:UINavigationControllerHideShowBarDuration
+                               options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionTransitionFlipFromLeft
+                            animations:^{
+                                
+                            }
+                            completion:^(BOOL finished) {
+                                _topViewController = viewController;
+                            }];
+}
+
 #pragma mark - UIGesture Delegate
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
@@ -125,6 +190,15 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     else if (_swipe == gestureRecognizer) {
         
     }
+    return YES;
+}
+
+#pragma mark - UINavigationBar Delegate
+
+- (BOOL)navigationBar:(UINavigationBar *)navigationBar
+        shouldPopItem:(UINavigationItem *)item
+{
+    
     return YES;
 }
 
