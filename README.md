@@ -3,6 +3,8 @@ RTNavigationController
 
 A Navigation Controller and A Side Controller
 
+The Navigation Controller is not implemented yet !
+
 
 **Features**
 * Two side support
