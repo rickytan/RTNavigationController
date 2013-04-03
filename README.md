@@ -10,11 +10,14 @@ The Navigation Controller is not implemented yet !
 * Two side support
 * Multi translation style to choose, and support custom style
 * Scroll view sensitive, won't show sider view until the scroll view reach its ends
+* ARC and non-ARC support
 
+**Requirements**
+
+iOS: 5.0 and up
+framework: QuartzCore
 
 **Installation**
-
-Notice: Only for iOS 5.0 and up!
 
 add "RTSiderViewControll.*" to your project and import file "RTSiderViewControll.h".
 
