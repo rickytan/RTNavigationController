@@ -39,7 +39,7 @@ typedef enum {
     SlideTranslationStyleFade,
     SlideTranslationStylePull,
     SlideTranslationStyleHalfPull,
-    SlideTranslationStyleDeeperAndFade,
+    SlideTranslationStyleDeeper,
     SlideTranslationStyleLean,
     SlideTranslationStyleCustom
 }SlideTranslationStyle;
@@ -79,6 +79,7 @@ typedef enum {
     CGAffineTransform             _currentTrans;
     
     UIView                      * _maskView;
+    UIScrollView                * _scrollView;
     
     SlideState                    _state;
     
