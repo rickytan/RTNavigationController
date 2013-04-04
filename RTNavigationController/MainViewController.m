@@ -8,6 +8,8 @@
 
 #import "MainViewController.h"
 #import "RTSiderViewController.h"
+//#import "RTNavigationController.h"
+#import "DetailViewController.h"
 
 @interface MainViewController ()
 
@@ -116,6 +118,15 @@
     cell.textLabel.text = [NSString stringWithFormat:@"item %d",indexPath.row];
     
     return cell;
+}
+
+- (void)tableView:(UITableView *)tableView
+didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    DetailViewController *detail = [[DetailViewController alloc] init];
+    [self.navigationController pushViewController:detail
+                                         animated:YES];
+    [detail release];
 }
 
 @end

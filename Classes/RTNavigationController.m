@@ -69,6 +69,7 @@
     //self.wantsFullScreenLayout;
     
     _navigationBar = [[UINavigationBar alloc] init];
+    _navigationBar.delegate = self;
     [_navigationBar sizeToFit];
     
     _containerView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(_navigationBar.frame),
@@ -87,7 +88,7 @@
     [super viewDidLoad];
     
     [self.view addGestureRecognizer:_pan];
-    [self.view addGestureRecognizer:_swipe];
+    //[self.view addGestureRecognizer:_swipe];
     
     self.topViewController.view.frame = _containerView.bounds;
     [_containerView addSubview:self.topViewController.view];
@@ -131,7 +132,20 @@
 
 - (void)onPan:(UIPanGestureRecognizer *)pan
 {
-    NSLog(@"Pan");
+    switch (_pan.state) {
+        case UIGestureRecognizerStateBegan:
+            
+            break;
+        case UIGestureRecognizerStateChanged:
+            
+            break;
+        case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled:
+            
+            break;
+        default:
+            break;
+    }
 }
 
 - (void)onSwipe:(UISwipeGestureRecognizer *)swipe
@@ -163,7 +177,7 @@
                   animated:(BOOL)animated
 {
     [self addChildViewController:viewController];
-
+    
     if (!_topViewController) {
         _topViewController = viewController;
         if (self.isViewLoaded) {
@@ -171,18 +185,31 @@
         }
         return;
     }
-
+    
+    if (!viewController.isViewLoaded) {
+        viewController.view.frame = _containerView.bounds;
+        viewController.view.transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds), 0);
+    }
+    
     [self transitionFromViewController:self.topViewController
                       toViewController:viewController
-                              duration:UINavigationControllerHideShowBarDuration
-                               options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionTransitionFlipFromLeft
+                              duration:0.35
+                               options:UIViewAnimationOptionCurveEaseInOut
                             animations:^{
                                 [_navigationBar pushNavigationItem:viewController.navigationItem
                                                           animated:animated];
+                                viewController.view.transform = CGAffineTransformIdentity;
+                                self.topViewController.view.transform = CGAffineTransformMakeTranslation(-CGRectGetWidth(self.view.bounds), 0);
                             }
                             completion:^(BOOL finished) {
                                 _topViewController = viewController;
                             }];
+}
+
+- (UIViewController*)popViewControllerAnimated:(BOOL)animated
+{
+    [_navigationBar popNavigationItemAnimated:animated];
+    return self.topViewController;
 }
 
 #pragma mark - UIGesture Delegate
@@ -203,7 +230,8 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 {
     if (_pan == gestureRecognizer) {
         CGPoint p = [_pan translationInView:self.view];
-        return fabsf(p.x) > fabsf(p.y);
+        BOOL begin = fabsf(p.x) > fabsf(p.y);
+        return begin && self.childViewControllers.count > 1;
     }
     else if (_swipe == gestureRecognizer) {
         
@@ -216,8 +244,44 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 - (BOOL)navigationBar:(UINavigationBar *)navigationBar
         shouldPopItem:(UINavigationItem *)item
 {
+    UIViewController *viewController = [self.childViewControllers objectAtIndex:self.childViewControllers.count - 2];
+    
+    if (!viewController.isViewLoaded) {
+        viewController.view.frame = _containerView.bounds;
+        viewController.view.transform = CGAffineTransformMakeTranslation(-CGRectGetWidth(self.view.bounds), 0);
+    }
+    
+    [self transitionFromViewController:self.topViewController
+                      toViewController:viewController
+                              duration:0.35
+                               options:UIViewAnimationOptionCurveEaseInOut
+                            animations:^{
+                                viewController.view.transform = CGAffineTransformIdentity;
+                                self.topViewController.view.transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds), 0);
+                            }
+                            completion:^(BOOL finished) {
+                                [_topViewController removeFromParentViewController];
+                                
+                                _topViewController = viewController;
+                            }];
     
     return YES;
+}
+
+@end
+
+
+@implementation UIViewController (RTNavigationControllerItem)
+
+- (RTNavigationController*)navigationController
+{
+    UIViewController *c = self.parentViewController;
+    while (c) {
+        if ([c isKindOfClass:[RTNavigationController class]])
+            return (RTNavigationController*)c;
+        c = c.parentViewController;
+    }
+    return nil;
 }
 
 @end

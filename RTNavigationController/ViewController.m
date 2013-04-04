@@ -93,7 +93,7 @@
 
 - (CGFloat)siderViewControllerMarginForSlidingToLeft:(RTSiderViewController *)controller
 {
-    return 50.0;
+    return 60.0;
 }
 
 - (CATransform3D)siderViewController:(RTSiderViewController *)controller

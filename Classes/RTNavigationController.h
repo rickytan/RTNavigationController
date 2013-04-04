@@ -57,3 +57,8 @@
                        animated:(BOOL)animated;
 
 @end
+
+
+@interface UIViewController (RTNavigationControllerItem)
+@property (nonatomic, readonly) RTNavigationController *navigationController;
+@end
