@@ -25,7 +25,7 @@
     sider.view.frame = self.view.bounds;
     sider.middleTranslationStyle = MiddleViewTranslationStyleStay;
     
-    [sider setMiddleViewController:[[[MainViewController alloc] init] autorelease]
+    [sider setMiddleViewController:[[[RTNavigationController alloc] initWithRootViewController:[[[MainViewController alloc] init] autorelease]] autorelease]
                           animated:YES];
     
     MenuViewController *menu = [[[MenuViewController alloc] initWithStyle:UITableViewStylePlain] autorelease];

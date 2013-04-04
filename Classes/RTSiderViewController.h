@@ -111,6 +111,6 @@ typedef enum {
 @end
 
 
-@interface UIViewController (RTSiderViiewControllerItem)
+@interface UIViewController (RTSiderViewControllerItem)
 @property (nonatomic, readonly) RTSiderViewController *siderViewController;
 @end

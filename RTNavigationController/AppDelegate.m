@@ -9,14 +9,8 @@
 #import "AppDelegate.h"
 
 #import "ViewController.h"
-#import "MenuViewController.h"
-#import "SettingViewController.h"
-#import "RedViewController.h"
-#import "BlueViewController.h"
-
 
 #import "RTNavigationController.h"
-#import "RTSiderViewController.h"
 
 @implementation AppDelegate
 

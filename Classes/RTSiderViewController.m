@@ -75,6 +75,7 @@
     _maskView.hidden = YES;
     
     self.tapToCenter = YES;
+    self.allowOverDrag = YES;
     self.middleTranslationStyle = MiddleViewTranslationStyleDefault;
     self.translationStyle = SlideTranslationStyleNormal;
 }
@@ -793,7 +794,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 @end
 
 
-@implementation UIViewController (RTSiderViiewControllerItem)
+@implementation UIViewController (RTSiderViewControllerItem)
 
 - (RTSiderViewController*)siderViewController
 {

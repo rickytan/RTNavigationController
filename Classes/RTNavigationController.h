@@ -20,7 +20,7 @@
 
 @class RTNavigationController;
 
-@protocol RTNavigationControllerDelegate <NSObject>
+@protocol RTNavigationControllerDatasource <NSObject>
 
 - (UIViewController*)nextViewController;
 
@@ -28,6 +28,7 @@
 
 @interface RTNavigationController : UIViewController <UIGestureRecognizerDelegate>
 {
+@private
     UISwipeGestureRecognizer                * _swipe;
     UIPanGestureRecognizer                  * _pan;
     
@@ -36,19 +37,20 @@
     UINavigationBar                         * _navigationBar;
     UINavigationBar                         * _navigationBarTmp;
     
-    UIView                                  * _contentView;
-    UIView                                  * _contentViewTmp;
+    UIView                                  * _containerView;
+    UIView                                  * _containerViewTmp;
     
     UIView                                  * _viewTmp;
 }
 
-@property (nonatomic, strong) id<RTNavigationControllerDelegate> delegate;
+@property (nonatomic, strong) id<RTNavigationControllerDatasource> dataSource;
 @property (nonatomic, readonly) UIViewController *topViewController;
 
 
 - (id)initWithRootViewController:(UIViewController*)controller;
 
-- (void)pushViewController:(UIViewController*)viewController animated:(BOOL)animated;
+- (void)pushViewController:(UIViewController*)viewController
+                  animated:(BOOL)animated;
 - (UIViewController*)popViewControllerAnimated:(BOOL)animated;
 - (NSArray*)popToRootViewControllerAnimated:(BOOL)animated;
 - (NSArray*)popToViewController:(UIViewController *)viewController

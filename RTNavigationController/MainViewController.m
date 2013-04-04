@@ -20,6 +20,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        self.title = @"Main View";
     }
     return self;
 }
@@ -28,6 +29,19 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"left"
+                                                                 style:UIBarButtonItemStyleBordered
+                                                                target:self
+                                                                action:@selector(onLeft:)];
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"right"
+                                                                  style:UIBarButtonItemStyleBordered
+                                                                 target:self
+                                                                 action:@selector(onRight:)];
+    self.navigationItem.leftBarButtonItem = leftItem;
+    self.navigationItem.rightBarButtonItem = rightItem;
+    [leftItem release], [rightItem release];
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -65,14 +79,43 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (IBAction)onLeft:(id)sender
+- (void)onLeft:(id)sender
 {
     [self.siderViewController slideToRightAnimated:YES];
 }
 
-- (IBAction)onRight:(id)sender
+- (void)onRight:(id)sender
 {
     [self.siderViewController slideToLeftAnimated:YES];
+}
+
+#pragma mark - UITable
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView
+ numberOfRowsInSection:(NSInteger)section
+{
+    return 3;
+}
+
+- (UITableViewCell*)tableView:(UITableView *)tableView
+        cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *CellIdentifier = @"Cell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (!cell) {
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault
+                                       reuseIdentifier:CellIdentifier] autorelease];
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    }
+    
+    cell.textLabel.text = [NSString stringWithFormat:@"item %d",indexPath.row];
+    
+    return cell;
 }
 
 @end

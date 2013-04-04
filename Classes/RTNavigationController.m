@@ -24,6 +24,12 @@
     SAFE_RELEASE(_pan);
     SAFE_RELEASE(_swipe);
     
+    SAFE_RELEASE(_navigationBar);
+    SAFE_RELEASE(_navigationBarTmp);
+    SAFE_RELEASE(_containerView);
+    SAFE_RELEASE(_containerViewTmp);
+    SAFE_RELEASE(_viewTmp);
+    
     SAFE_DEALLOC(super);
 }
 
@@ -60,15 +66,14 @@
 - (void)loadView
 {
     [super loadView];
+    //self.wantsFullScreenLayout;
     
     _navigationBar = [[UINavigationBar alloc] init];
-    _navigationBar.delegate = self;
     [_navigationBar sizeToFit];
     
-    _contentView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(_navigationBar.bounds), CGRectGetWidth(self.view.bounds),
-                                                            CGRectGetHeight(self.view.bounds) - CGRectGetHeight(_navigationBar.bounds))];
-    
-    [self.view addSubview:_contentView];
+    _containerView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(_navigationBar.frame),
+                                                              CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame) - CGRectGetHeight(_navigationBar.frame))];
+    [self.view addSubview:_containerView];
     [self.view addSubview:_navigationBar];
 }
 
@@ -84,8 +89,21 @@
     [self.view addGestureRecognizer:_pan];
     [self.view addGestureRecognizer:_swipe];
     
-    [_contentView addSubview:self.topViewController.view];
-    self.topViewController.view.frame = _contentView.bounds;
+    self.topViewController.view.frame = _containerView.bounds;
+    [_containerView addSubview:self.topViewController.view];
+    [_navigationBar pushNavigationItem:self.topViewController.navigationItem
+                              animated:NO];
+}
+
+- (void)viewDidUnload
+{
+    [super viewDidUnload];
+    
+    SAFE_RELEASE(_navigationBar);
+    SAFE_RELEASE(_navigationBarTmp);
+    SAFE_RELEASE(_containerView);
+    SAFE_RELEASE(_containerViewTmp);
+    SAFE_RELEASE(_viewTmp);
 }
 
 - (void)didReceiveMemoryWarning
@@ -99,15 +117,15 @@
 - (void)swapViews
 {
     SAFE_RELEASE(_navigationBar);
-    SAFE_RELEASE(_contentView);
+    SAFE_RELEASE(_containerView);
     
     [self.view removeFromSuperview];
     self.view = _viewTmp;
     _navigationBar = _navigationBarTmp;
-    _contentView = _contentViewTmp;
+    _containerView = _containerViewTmp;
     
     _navigationBarTmp = nil;
-    _contentViewTmp = nil;
+    _containerViewTmp = nil;
     _viewTmp = nil;
 }
 
@@ -145,22 +163,22 @@
                   animated:(BOOL)animated
 {
     [self addChildViewController:viewController];
-    
+
     if (!_topViewController) {
         _topViewController = viewController;
         if (self.isViewLoaded) {
-            
+            [self viewDidLoad];
         }
+        return;
     }
 
-    [_navigationBar pushNavigationItem:viewController.navigationItem
-                              animated:animated];
     [self transitionFromViewController:self.topViewController
                       toViewController:viewController
                               duration:UINavigationControllerHideShowBarDuration
                                options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionTransitionFlipFromLeft
                             animations:^{
-                                
+                                [_navigationBar pushNavigationItem:viewController.navigationItem
+                                                          animated:animated];
                             }
                             completion:^(BOOL finished) {
                                 _topViewController = viewController;
