@@ -14,6 +14,7 @@
 #define SAFE_DEALLOC(o) {}
 #else
 #define SAFE_RELEASE(o) ([(o) release], (o) = nil)
+#define SAFE_AUTORELEASE(o) ([(o) autorelease])
 #define SAFE_DEALLOC(o) [o dealloc]
 #endif
 #endif
@@ -22,9 +23,24 @@
 
 @protocol RTNavigationControllerDatasource <NSObject>
 
-- (UIViewController*)nextViewController;
+- (UIViewController*)nextViewControllerForRTNavigationController:(RTNavigationController*)controller;
 
 @end
+
+typedef enum {
+    NavigationTranslationStyleNormal,
+    NavigationTranslationStyleFade,
+    NavigationTranslationStylePull = NavigationTranslationStyleNormal,
+    NavigationTranslationStyleHalfPull,
+    NavigationTranslationStyleDeeper,
+    NavigationTranslationStyleLean
+}NavigationTranslationStyle;
+
+typedef enum {
+    NavigationStateNormal,
+    NavigationStatePoping,
+    NavigationStatePushing
+}NavigationState;
 
 @interface RTNavigationController : UIViewController <UIGestureRecognizerDelegate>
 {
@@ -34,17 +50,27 @@
     
     UIViewController                        * _topViewController;
     
+    CGAffineTransform                         _currentTrans;
+    
     UINavigationBar                         * _navigationBar;
     UINavigationBar                         * _navigationBarTmp;
     
     UIView                                  * _containerView;
     UIView                                  * _containerViewTmp;
     
-    UIView                                  * _viewTmp;
+    UIView                                  * _contentView;
+    UIView                                  * _contentViewTmp;
+    
+    UIScrollView                            * _scrollView;
+    
+    UIView                                  * _maskView;
 }
 
 @property (nonatomic, strong) id<RTNavigationControllerDatasource> dataSource;
 @property (nonatomic, readonly) UIViewController *topViewController;
+
+@property (nonatomic, assign) NavigationTranslationStyle translationStyle;
+@property (nonatomic, readonly) NavigationState state;
 
 
 - (id)initWithRootViewController:(UIViewController*)controller;

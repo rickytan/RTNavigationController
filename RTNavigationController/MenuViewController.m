@@ -116,7 +116,7 @@
                 cell.textLabel.text = @"HalfPull";
                 break;
             case 4:
-                cell.textLabel.text = @"DeeperAndFade";
+                cell.textLabel.text = @"Deeper";
                 break;
             case 5:
                 cell.textLabel.text = @"Lean";

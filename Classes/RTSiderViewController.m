@@ -135,7 +135,7 @@
 {
     if (_translationStyle != translationStyle) {
         _translationStyle = translationStyle;
-
+        
         if (self.state == SlideStateLeft) {
             [self applyTranslationForController:_currentLeftViewController
                                      withOffset:1.0];
@@ -773,6 +773,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
                     if (offset <= 0.0 && begin)
                         _scrollView.panGestureRecognizer.enabled = NO;
                 }
+                
             }
             else {
                 CGPoint l = [_pan locationInView:self.view];
