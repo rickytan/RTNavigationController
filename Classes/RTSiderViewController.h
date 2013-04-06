@@ -14,6 +14,7 @@
 #define SAFE_DEALLOC(o) {}
 #else
 #define SAFE_RELEASE(o) ([(o) release], (o) = nil)
+#define SAFE_AUTORELEASE(o) ([(o) autorelease])
 #define SAFE_DEALLOC(o) [o dealloc]
 #endif
 #endif

@@ -13,6 +13,18 @@
 #define DEFAULT_MARGIN 48.0f
 #define PAN_THRESHOLD 64.0f
 
+@interface RTSiderContentView : UIView
+
+@end
+
+@implementation RTSiderContentView
+
++ (Class)layerClass
+{
+    return [CATransformLayer class];
+}
+
+@end
 @interface RTSiderViewController ()
 @property (nonatomic, readwrite) SlideState state;
 - (void)onPan:(UIPanGestureRecognizer*)pan;

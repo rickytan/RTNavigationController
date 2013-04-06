@@ -28,6 +28,12 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    
+    UIBarButtonItem *commentItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
+                                                                                 target:self
+                                                                                 action:@selector(onComment:)];
+    self.navigationItem.rightBarButtonItem = commentItem;
+    [commentItem release];
 }
 
 
@@ -59,6 +65,12 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)onComment:(id)sender
+{
+    [self.navigationController pushViewController:[self nextViewControllerForRTNavigationController:nil]
+                                         animated:YES];
 }
 
 #pragma mark - RTNavigation Datasource

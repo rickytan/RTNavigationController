@@ -30,10 +30,7 @@
 typedef enum {
     NavigationTranslationStyleNormal,
     NavigationTranslationStyleFade,
-    NavigationTranslationStylePull = NavigationTranslationStyleNormal,
-    NavigationTranslationStyleHalfPull,
-    NavigationTranslationStyleDeeper,
-    NavigationTranslationStyleLean
+    NavigationTranslationStyleDeeper = NavigationTranslationStyleNormal,
 }NavigationTranslationStyle;
 
 typedef enum {
@@ -45,10 +42,9 @@ typedef enum {
 @interface RTNavigationController : UIViewController <UIGestureRecognizerDelegate>
 {
 @private
-    UISwipeGestureRecognizer                * _swipe;
     UIPanGestureRecognizer                  * _pan;
     
-    UIViewController<RTNavigationControllerDatasource>     * _topViewController;
+    UIViewController                        * _topViewController;
     
     CGAffineTransform                         _currentTrans;
     
@@ -67,7 +63,7 @@ typedef enum {
 }
 
 //@property (nonatomic, strong) id<RTNavigationControllerDatasource> dataSource;
-@property (nonatomic, readonly) UIViewController<RTNavigationControllerDatasource> *topViewController;
+@property (nonatomic, readonly) UIViewController *topViewController;
 
 @property (nonatomic, assign) NavigationTranslationStyle translationStyle;
 @property (nonatomic, readonly) NavigationState state;
@@ -78,9 +74,11 @@ typedef enum {
 - (void)pushViewController:(UIViewController*)viewController
                   animated:(BOOL)animated;
 - (UIViewController*)popViewControllerAnimated:(BOOL)animated;
+/*
 - (NSArray*)popToRootViewControllerAnimated:(BOOL)animated;
 - (NSArray*)popToViewController:(UIViewController *)viewController
                        animated:(BOOL)animated;
+ */
 
 @end
 

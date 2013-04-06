@@ -16,12 +16,12 @@
 @property (nonatomic, readwrite) NavigationState state;
 
 - (void)onPan:(UIPanGestureRecognizer*)pan;
-- (void)onSwipe:(UISwipeGestureRecognizer*)swipe;
 
 - (void)swapViews;
 - (void)loadViewTmp;
 - (void)unloadViewTmp;
-- (void)applyTranslationForView:(UIView*)view withOffset:(CGFloat)offset;
+- (void)applyTranslationForView:(UIView*)view
+                     withOffset:(CGFloat)offset;
 
 - (void)showCurrent;
 - (void)showTmp;
@@ -33,7 +33,6 @@
 - (void)dealloc
 {
     SAFE_RELEASE(_pan);
-    SAFE_RELEASE(_swipe);
     
     SAFE_RELEASE(_navigationBar);
     SAFE_RELEASE(_navigationBarTmp);
@@ -54,11 +53,7 @@
         _pan = [[UIPanGestureRecognizer alloc] initWithTarget:self
                                                        action:@selector(onPan:)];
         _pan.delegate = self;
-        
-        _swipe = [[UISwipeGestureRecognizer alloc] initWithTarget:self
-                                                           action:@selector(onSwipe:)];
-        _swipe.direction = UISwipeGestureRecognizerDirectionLeft | UISwipeGestureRecognizerDirectionRight;
-        _swipe.delegate = self;
+
         
         _maskView = [[UIView alloc] init];
         _maskView.backgroundColor = [UIColor blackColor];
@@ -66,7 +61,6 @@
         _maskView.alpha = 0.0f;
         _maskView.hidden = YES;
         
-        self.translationStyle = NavigationTranslationStyleDeeper;
     }
     return self;
 }
@@ -108,10 +102,7 @@
 - (void)loadViewTmp
 {
     _contentViewTmp = [[UIView alloc] initWithFrame:self.view.bounds];
-    _contentViewTmp.backgroundColor = [UIColor clearColor];
-    if (self.state == NavigationStatePushing)
-        _contentViewTmp.transform = CGAffineTransformMakeTranslation(self.view.bounds.size.width, 0);
-    [self.view addSubview:_contentViewTmp];
+    _contentViewTmp.backgroundColor = [UIColor clearColor]; 
     
     _navigationBarTmp = [[UINavigationBar alloc] initWithFrame:_navigationBar.frame];
     _containerViewTmp = [[UIView alloc] initWithFrame:_containerView.frame];
@@ -120,16 +111,21 @@
     [_contentViewTmp addSubview:_navigationBarTmp];
     
     if (self.state == NavigationStatePoping) {
-        [self.view bringSubviewToFront:_maskView];
         [self.view bringSubviewToFront:_contentView];
+        [self.view insertSubview:_contentViewTmp
+                    belowSubview:_maskView];
+        
         [_contentView addObserver:self
                        forKeyPath:@"transform"
                           options:NSKeyValueObservingOptionNew
                           context:NULL];
     }
     else if (self.state == NavigationStatePushing) {
-        [self.view bringSubviewToFront:_maskView];
-        [self.view bringSubviewToFront:_contentViewTmp];
+        _contentViewTmp.transform = CGAffineTransformMakeTranslation(self.view.bounds.size.width, 0);
+        [self.view addSubview:_contentViewTmp];
+        [self.view insertSubview:_maskView
+                    belowSubview:_contentViewTmp];
+        
         [_contentViewTmp addObserver:self
                           forKeyPath:@"transform"
                              options:NSKeyValueObservingOptionNew
@@ -140,7 +136,7 @@
 - (void)unloadViewTmp
 {
     SAFE_RELEASE(_containerViewTmp);
-    //SAFE_RELEASE(_navigationBarTmp);
+//    SAFE_RELEASE(_navigationBarTmp);
     [_contentViewTmp removeFromSuperview];
     SAFE_RELEASE(_contentViewTmp);
     
@@ -152,7 +148,6 @@
     [super viewDidLoad];
     
     [self.view addGestureRecognizer:_pan];
-    //[self.view addGestureRecognizer:_swipe];
     
     CATransform3D t = CATransform3DIdentity;
     t.m34 = -0.002;
@@ -226,14 +221,15 @@
 - (void)applyTranslationForView:(UIView *)view
                      withOffset:(CGFloat)offset
 {
+    _maskView.hidden = YES;
+    _maskView.alpha = 0.0;
+    
     switch (self.translationStyle) {
-        case NavigationTranslationStylePull:
-            
-            break;
         case NavigationTranslationStyleDeeper:
+            view.layer.transform = CATransform3DMakeTranslation(0, 0, -18 + 16 * fabsf(offset));
+        case NavigationTranslationStyleFade:
             _maskView.hidden = NO;
             _maskView.alpha = 0.8 * (1 - fabs(offset));
-            view.layer.transform = CATransform3DMakeTranslation(0, 0, -18 + 16 * fabsf(offset));
             break;
         default:
             break;
@@ -358,7 +354,7 @@
             if (self.state == NavigationStatePoping)
                 _contentView.transform = CGAffineTransformMakeTranslation(tx, 0);
             else if (self.state == NavigationStatePushing)
-                _contentViewTmp.transform = CGAffineTransformMakeTranslation(tx, 0);
+                _contentViewTmp.transform = CGAffineTransformMakeTranslation(MIN(tx,_currentTrans.tx), 0);
             
         }
             break;
@@ -389,29 +385,6 @@
     }
 }
 
-- (void)onSwipe:(UISwipeGestureRecognizer *)swipe
-{
-    NSLog(@"Swipe");
-    
-    NSUInteger count = self.childViewControllers.count;
-    if (count > 1) {
-        UIViewController *lastController = [self.childViewControllers objectAtIndex:count - 2];
-        UINavigationController *nav = [[[UINavigationController alloc] initWithRootViewController:lastController] autorelease];
-        [self addChildViewController:nav];
-        
-        [self transitionFromViewController:self.topViewController
-                          toViewController:nav
-                                  duration:0.35
-                                   options:UIViewAnimationOptionTransitionFlipFromLeft
-                                animations:^{
-                                    
-                                }
-                                completion:^(BOOL finished) {
-                                    
-                                }];
-    }
-}
-
 #pragma mark - Public Methods
 
 - (void)pushViewController:(UIViewController *)viewController
@@ -432,13 +405,14 @@
         viewController.view.transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds), 0);
     }
     
+    [_navigationBar pushNavigationItem:viewController.navigationItem
+                              animated:animated];
+    
     [self transitionFromViewController:self.topViewController
                       toViewController:viewController
                               duration:0.35
                                options:UIViewAnimationOptionCurveEaseInOut
                             animations:^{
-                                [_navigationBar pushNavigationItem:viewController.navigationItem
-                                                          animated:animated];
                                 viewController.view.transform = CGAffineTransformIdentity;
                                 self.topViewController.view.transform = CGAffineTransformMakeTranslation(-CGRectGetWidth(self.view.bounds), 0);
                             }
@@ -453,6 +427,7 @@
     [_navigationBar popNavigationItemAnimated:animated];
     return self.topViewController;
 }
+
 
 #pragma mark - UIGesture Delegate
 
@@ -507,9 +482,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
         }
         return begin;
     }
-    else if (_swipe == gestureRecognizer) {
-        
-    }
+
     return YES;
 }
 
