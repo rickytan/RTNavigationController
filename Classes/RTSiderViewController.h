@@ -91,7 +91,7 @@ typedef enum {
 }
 
 @property (nonatomic, assign) id<RTSiderViewControllerDatasource> dataSource;
-@property (nonatomic, assign) id<RTSiderViewControllerDelegate> delegate;
+@property (nonatomic, assign) id<RTSiderViewControllerDelegate> delegate;     // Not Implemented yet!
 @property (nonatomic, assign) SlideTranslationStyle translationStyle;
 @property (nonatomic, assign) MiddleViewTranslationStyle middleTranslationStyle;
 @property (nonatomic, readonly) SlideState state;

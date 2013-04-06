@@ -22,7 +22,7 @@
 @class RTNavigationController;
 
 @protocol RTNavigationControllerDatasource <NSObject>
-
+@optional
 - (UIViewController*)nextViewControllerForRTNavigationController:(RTNavigationController*)controller;
 
 @end
@@ -48,7 +48,7 @@ typedef enum {
     UISwipeGestureRecognizer                * _swipe;
     UIPanGestureRecognizer                  * _pan;
     
-    UIViewController                        * _topViewController;
+    UIViewController<RTNavigationControllerDatasource>     * _topViewController;
     
     CGAffineTransform                         _currentTrans;
     
@@ -66,8 +66,8 @@ typedef enum {
     UIView                                  * _maskView;
 }
 
-@property (nonatomic, strong) id<RTNavigationControllerDatasource> dataSource;
-@property (nonatomic, readonly) UIViewController *topViewController;
+//@property (nonatomic, strong) id<RTNavigationControllerDatasource> dataSource;
+@property (nonatomic, readonly) UIViewController<RTNavigationControllerDatasource> *topViewController;
 
 @property (nonatomic, assign) NavigationTranslationStyle translationStyle;
 @property (nonatomic, readonly) NavigationState state;

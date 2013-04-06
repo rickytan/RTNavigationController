@@ -143,6 +143,8 @@
     //SAFE_RELEASE(_navigationBarTmp);
     [_contentViewTmp removeFromSuperview];
     SAFE_RELEASE(_contentViewTmp);
+    
+    self.state = NavigationStateNormal;
 }
 
 - (void)viewDidLoad
@@ -153,7 +155,7 @@
     //[self.view addGestureRecognizer:_swipe];
     
     CATransform3D t = CATransform3DIdentity;
-    //t.m34 = -0.002;
+    t.m34 = -0.002;
     self.view.layer.sublayerTransform = t;
     
     self.topViewController.view.frame = _containerView.bounds;
@@ -217,6 +219,8 @@
     _navigationBarTmp = nil;
     _containerViewTmp = nil;
     _contentViewTmp = nil;
+    
+    self.state = NavigationStateNormal;
 }
 
 - (void)applyTranslationForView:(UIView *)view
@@ -248,6 +252,8 @@
                              _contentView.transform = t;
                          }
                          completion:^(BOOL finished) {
+                             [_contentView removeObserver:self
+                                               forKeyPath:@"transform"];
                              [self swapViews];
                              _contentView.transform = CGAffineTransformIdentity;
                              [self.topViewController removeFromParentViewController];
@@ -255,7 +261,19 @@
                          }];
     }
     else {
-        
+        [UIView animateWithDuration:0.35
+                              delay:0.0
+                            options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
+                         animations:^{
+                             _contentViewTmp.transform = CGAffineTransformIdentity;
+                         }
+                         completion:^(BOOL finished) {
+                             [_contentViewTmp removeObserver:self
+                                                  forKeyPath:@"transform"];
+                             [self swapViews];
+                             [self.topViewController.view removeFromSuperview];
+                             _topViewController = self.childViewControllers.lastObject;
+                         }];
     }
 }
 
@@ -270,7 +288,26 @@
                              _contentView.transform = CGAffineTransformIdentity;
                          }
                          completion:^(BOOL finished) {
+                             [_contentView removeObserver:self
+                                               forKeyPath:@"transform"];
                              [self unloadViewTmp];
+                         }];
+    }
+    else if (self.state == NavigationStatePushing) {
+        __block CGAffineTransform t = CGAffineTransformMakeTranslation(self.view.bounds.size.width, 0);
+
+        [UIView animateWithDuration:0.35
+                              delay:0.0
+                            options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
+                         animations:^{
+                             _contentViewTmp.transform = t;
+                         }
+                         completion:^(BOOL finished) {
+                             [_contentViewTmp removeObserver:self
+                                                  forKeyPath:@"transform"];
+                             [self unloadViewTmp];
+                             [self.childViewControllers.lastObject removeFromParentViewController];
+                             _topViewController = self.childViewControllers.lastObject;
                          }];
     }
 }
@@ -287,19 +324,30 @@
             UIViewController *viewController = nil;
             if (p.x > 0)
                 viewController = [self.childViewControllers objectAtIndex:self.childViewControllers.count - 2];
-            else
-                viewController = [self.dataSource nextViewControllerForRTNavigationController:self];
+            else {
+                viewController = [self.topViewController nextViewControllerForRTNavigationController:self];
+                [self addChildViewController:viewController];
+            }
             
-            [_navigationBarTmp pushNavigationItem:viewController.navigationItem
-                                         animated:NO];
             viewController.view.transform = CGAffineTransformIdentity;
             viewController.view.frame = _containerViewTmp.bounds;
             [_containerViewTmp addSubview:viewController.view];
             
-            if (self.state == NavigationStatePoping)
+            if (self.state == NavigationStatePoping) {
                 _currentTrans = _contentView.transform;
-            else if (self.state == NavigationStatePushing)
+                for (int i = 0; i < self.childViewControllers.count - 1; ++i) {
+                    UIViewController *c = [self.childViewControllers objectAtIndex:i];
+                    [_navigationBarTmp pushNavigationItem:c.navigationItem
+                                                 animated:NO];
+                }
+            }
+            else if (self.state == NavigationStatePushing) {
                 _currentTrans = _contentViewTmp.transform;
+                for (UIViewController *c in self.childViewControllers) {
+                    [_navigationBarTmp pushNavigationItem:c.navigationItem
+                                                 animated:NO];
+                }
+            }
         }
             break;
         case UIGestureRecognizerStateChanged:
@@ -437,7 +485,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
         BOOL begin = fabsf(p.x) > fabsf(p.y);
         if (begin) {
             if (p.x < 0) {
-                begin = [self.dataSource respondsToSelector:@selector(nextViewControllerForRTNavigationController:)];
+                begin = [self.topViewController respondsToSelector:@selector(nextViewControllerForRTNavigationController:)];
                 if (begin)
                     self.state = NavigationStatePushing;
                 
@@ -472,12 +520,9 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 {
     UIViewController *viewController = [self.childViewControllers objectAtIndex:self.childViewControllers.count - 2];
     
-    
-    if (!viewController.isViewLoaded) {
-        viewController.view.frame = _containerView.bounds;
-        viewController.view.transform = CGAffineTransformMakeTranslation(-CGRectGetWidth(self.view.bounds), 0);
-    }
-    
+    viewController.view.transform = CGAffineTransformIdentity;
+    viewController.view.frame = _containerView.bounds;
+    viewController.view.transform = CGAffineTransformMakeTranslation(-CGRectGetWidth(self.view.bounds), 0);
     
     [self transitionFromViewController:self.topViewController
                       toViewController:viewController

@@ -19,6 +19,7 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        self.title = @"Detail View";
     }
     return self;
 }
@@ -58,6 +59,13 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - RTNavigation Datasource
+
+- (UIViewController*)nextViewControllerForRTNavigationController:(RTNavigationController*)controller
+{
+    return [[[UITableViewController alloc] initWithStyle:UITableViewStyleGrouped] autorelease];
 }
 
 @end

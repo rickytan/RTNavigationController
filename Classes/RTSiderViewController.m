@@ -115,7 +115,7 @@
     [self.view addGestureRecognizer:_tap];
     
     CATransform3D t = CATransform3DIdentity;
-    t.m34 = -0.002;
+    //t.m34 = -0.002;
     self.view.layer.sublayerTransform = t;
     
     _currentMiddleViewController.view.frame = self.view.bounds;

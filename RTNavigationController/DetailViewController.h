@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RTNavigationController.h"
 
-@interface DetailViewController : UIViewController
+@interface DetailViewController : UIViewController <RTNavigationControllerDatasource>
 
 @end
