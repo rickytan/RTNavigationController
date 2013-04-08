@@ -150,7 +150,7 @@
     [self.view addGestureRecognizer:_pan];
     
     CATransform3D t = CATransform3DIdentity;
-    t.m34 = -0.002;
+    //t.m34 = -0.002;
     self.view.layer.sublayerTransform = t;
     
     self.topViewController.view.frame = _containerView.bounds;
@@ -226,7 +226,8 @@
     
     switch (self.translationStyle) {
         case NavigationTranslationStyleDeeper:
-            view.layer.transform = CATransform3DMakeTranslation(0, 0, -18 + 16 * fabsf(offset));
+            //view.layer.transform = CATransform3DMakeTranslation(0, 0, -18 + 16 * fabsf(offset));
+            view.transform = CGAffineTransformMakeScale(0.96 + 0.04*offset, 0.96 + 0.04*offset);
         case NavigationTranslationStyleFade:
             _maskView.hidden = NO;
             _maskView.alpha = 0.8 * (1 - fabs(offset));
@@ -321,7 +322,7 @@
             if (p.x > 0)
                 viewController = [self.childViewControllers objectAtIndex:self.childViewControllers.count - 2];
             else {
-                viewController = [self.topViewController nextViewControllerForRTNavigationController:self];
+                viewController = [(id<RTNavigationControllerDatasource>)self.topViewController nextViewControllerForRTNavigationController:self];
                 [self addChildViewController:viewController];
             }
             
@@ -436,6 +437,7 @@
        shouldReceiveTouch:(UITouch *)touch
 {
     if (_pan == gestureRecognizer) {
+        _scrollView = nil;
         UIView *v = touch.view;
         while (v) {
             if ([v isKindOfClass:[UIScrollView class]]) {

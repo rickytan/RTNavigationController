@@ -127,7 +127,7 @@
     [self.view addGestureRecognizer:_tap];
     
     CATransform3D t = CATransform3DIdentity;
-    //t.m34 = -0.002;
+    t.m34 = -0.002;
     self.view.layer.sublayerTransform = t;
     
     _currentMiddleViewController.view.frame = self.view.bounds;
@@ -732,6 +732,7 @@
        shouldReceiveTouch:(UITouch *)touch
 {
     if (_pan == gestureRecognizer) {
+        _scrollView = nil;
         UIView *v = touch.view;
         while (v) {
             if ([v isKindOfClass:[UIScrollView class]]) {
