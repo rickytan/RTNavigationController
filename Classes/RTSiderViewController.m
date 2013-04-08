@@ -465,6 +465,7 @@
                 }
             }
             _scrollView.panGestureRecognizer.enabled = YES;
+            _scrollView = nil;
         }
             break;
         default:
@@ -788,6 +789,8 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
                 
             }
             else {
+                _scrollView = nil;
+                
                 CGPoint l = [_pan locationInView:self.view];
                 begin = CGRectContainsPoint(_currentMiddleViewController.view.frame, l);
             }

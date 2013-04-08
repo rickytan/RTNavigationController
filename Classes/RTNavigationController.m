@@ -378,6 +378,7 @@
                     [self showCurrent];
             }
             _scrollView.panGestureRecognizer.enabled = YES;
+            _scrollView = nil;
         }
             break;
         default:
