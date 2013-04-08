@@ -25,7 +25,13 @@ framework: QuartzCore
 
 ***Installation***
 
-add "RTSiderViewControll.*" to your project and import file "RTSiderViewControll.h".
+add 
+"RTSiderViewController.*"
+"RTNavigationController.*"
+
+to your project and import file 
+"RTSiderViewController.h"
+"RTNavigationController.h"
 
     - (void)viewDidLoad
     {
@@ -37,7 +43,7 @@ add "RTSiderViewControll.*" to your project and import file "RTSiderViewControll
         sider.view.frame = self.view.bounds;
         sider.middleTranslationStyle = MiddleViewTranslationStyleStay;
     
-        [sider setMiddleViewController:[[[MainViewController alloc] init] autorelease]
+        [sider setMiddleViewController:[[[RTNavigationController alloc] initWithRootViewController:[[[MainViewController alloc] init] autorelease]] autorelease]
                               animated:YES];
     
         MenuViewController *menu = [[[MenuViewController alloc] initWithStyle:UITableViewStylePlain] autorelease];
