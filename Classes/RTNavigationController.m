@@ -121,6 +121,12 @@
                           context:NULL];
     }
     else if (self.state == NavigationStatePushing) {
+        UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(-4, -8, 8, self.view.bounds.size.height + 16)];
+        _contentViewTmp.layer.shadowColor = [UIColor blackColor].CGColor;
+        _contentViewTmp.layer.shadowOffset = CGSizeZero;
+        _contentViewTmp.layer.shadowOpacity = 0.75;
+        _contentViewTmp.layer.shadowPath = path.CGPath;
+        
         _contentViewTmp.transform = CGAffineTransformMakeTranslation(self.view.bounds.size.width, 0);
         [self.view addSubview:_contentViewTmp];
         [self.view insertSubview:_maskView
@@ -226,7 +232,6 @@
     
     switch (self.translationStyle) {
         case NavigationTranslationStyleDeeper:
-            //view.layer.transform = CATransform3DMakeTranslation(0, 0, -18 + 16 * fabsf(offset));
             view.transform = CGAffineTransformMakeScale(0.96 + 0.04*offset, 0.96 + 0.04*offset);
         case NavigationTranslationStyleFade:
             _maskView.hidden = NO;
@@ -307,6 +312,43 @@
                              _topViewController = self.childViewControllers.lastObject;
                          }];
     }
+}
+
+- (void)setState:(NavigationState)state
+{
+    if (_state == state)
+        return;
+    
+    switch (state) {
+        case NavigationStateNormal:
+            _contentView.layer.shadowColor = NULL;
+            _contentView.layer.shadowOffset = CGSizeZero;
+            _contentView.layer.shadowOpacity = 0.0;
+            _contentView.layer.shadowPath = NULL;
+            break;
+        case NavigationStatePoping:
+        {
+            UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(-4, -8, 8, self.view.bounds.size.height + 16)];
+            _contentView.layer.shadowColor = [UIColor blackColor].CGColor;
+            _contentView.layer.shadowOffset = CGSizeZero;
+            _contentView.layer.shadowOpacity = 0.75;
+            _contentView.layer.shadowPath = path.CGPath;
+        }
+            break;
+        case NavigationStatePushing:
+        {
+            UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(-4, -8, 8, self.view.bounds.size.height + 16)];
+            _contentViewTmp.layer.shadowColor = [UIColor blackColor].CGColor;
+            _contentViewTmp.layer.shadowOffset = CGSizeZero;
+            _contentViewTmp.layer.shadowOpacity = 0.75;
+            _contentViewTmp.layer.shadowPath = path.CGPath;
+        }
+            break;
+        default:
+            break;
+    }
+    
+    _state = state;
 }
 
 - (void)onPan:(UIPanGestureRecognizer *)pan
