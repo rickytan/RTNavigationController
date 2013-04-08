@@ -3,21 +3,27 @@ RTNavigationController
 
 A Navigation Controller and A Side Controller
 
-The Navigation Controller is not implemented yet !
 
+***Features***
 
-**Features**
+**RTSiderViewController**
 * Two side support
 * Multi translation style to choose, and support custom style
 * Scroll view sensitive, won't show sider view until the scroll view reach its ends
 * ARC and non-ARC support
 
-**Requirements**
+**RTNavigationController**
+* Just like UINavigationController, easy to use
+* Two translation style
+* Pan to navigation back and forward
+
+
+***Requirements***
 
 iOS: 5.0 and up
 framework: QuartzCore
 
-**Installation**
+***Installation***
 
 add "RTSiderViewControll.*" to your project and import file "RTSiderViewControll.h".
 
@@ -51,3 +57,5 @@ add "RTSiderViewControll.*" to your project and import file "RTSiderViewControll
 ![Screenshot0](http://dl.dropbox.com/u/46239535/RTNavigationController/2.png)
 ![Screenshot1](http://dl.dropbox.com/u/46239535/RTNavigationController/1.png)
 ![Screenshot2](http://dl.dropbox.com/u/46239535/RTNavigationController/3.png)
+![Screenshot3](http://dl.dropbox.com/u/46239535/RTNavigationController/4.png)
+![Screenshot4](http://dl.dropbox.com/u/46239535/RTNavigationController/5.png)
