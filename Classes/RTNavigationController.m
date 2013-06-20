@@ -29,6 +29,7 @@
 @end
 
 @implementation RTNavigationController
+@synthesize navigationBarHidden = _navigationBarHidden;
 
 - (void)dealloc
 {
@@ -104,7 +105,8 @@
     _contentViewTmp = [[UIView alloc] initWithFrame:self.view.bounds];
     _contentViewTmp.backgroundColor = [UIColor clearColor]; 
     
-    _navigationBarTmp = [[UINavigationBar alloc] initWithFrame:_navigationBar.frame];
+    _navigationBarTmp = [[UINavigationBar alloc] initWithFrame:_navigationBar.bounds];
+    _navigationBarTmp.transform = _navigationBar.transform;
     _containerViewTmp = [[UIView alloc] initWithFrame:_containerView.frame];
     
     [_contentViewTmp addSubview:_containerViewTmp];
@@ -142,7 +144,7 @@
 - (void)unloadViewTmp
 {
     SAFE_RELEASE(_containerViewTmp);
-//    SAFE_RELEASE(_navigationBarTmp);
+    SAFE_RELEASE(_navigationBarTmp);
     [_contentViewTmp removeFromSuperview];
     SAFE_RELEASE(_contentViewTmp);
     
@@ -163,6 +165,7 @@
     [_containerView addSubview:self.topViewController.view];
     [_navigationBar pushNavigationItem:self.topViewController.navigationItem
                               animated:NO];
+    NSAssert(_navigationBar.delegate == self, @"You should NOT handle UINavigationBar delegate yourself !");
 }
 
 - (void)viewDidUnload
@@ -263,6 +266,7 @@
                          }];
     }
     else {
+
         [UIView animateWithDuration:0.35
                               delay:0.0
                             options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
@@ -270,11 +274,18 @@
                              _contentViewTmp.transform = CGAffineTransformIdentity;
                          }
                          completion:^(BOOL finished) {
+                             while ([_navigationBarTmp popNavigationItemAnimated:NO]);
+                             for (UIViewController *c in self.childViewControllers) {
+                                 [_navigationBarTmp pushNavigationItem:c.navigationItem
+                                                              animated:NO];
+                             }
+                             
                              [_contentViewTmp removeObserver:self
                                                   forKeyPath:@"transform"];
                              [self swapViews];
                              [self.topViewController.view removeFromSuperview];
                              _topViewController = self.childViewControllers.lastObject;
+                            
                          }];
     }
 }
@@ -371,11 +382,13 @@
             viewController.view.transform = CGAffineTransformIdentity;
             viewController.view.frame = _containerViewTmp.bounds;
             [_containerViewTmp addSubview:viewController.view];
-            
+
             if (self.state == NavigationStatePoping) {
                 _currentTrans = _contentView.transform;
+                
                 for (int i = 0; i < self.childViewControllers.count - 1; ++i) {
                     UIViewController *c = [self.childViewControllers objectAtIndex:i];
+                                        
                     [_navigationBarTmp pushNavigationItem:c.navigationItem
                                                  animated:NO];
                 }
@@ -383,7 +396,7 @@
             else if (self.state == NavigationStatePushing) {
                 _currentTrans = _contentViewTmp.transform;
                 for (UIViewController *c in self.childViewControllers) {
-                    [_navigationBarTmp pushNavigationItem:c.navigationItem
+                    [_navigationBarTmp pushNavigationItem:[NSKeyedUnarchiver unarchiveObjectWithData:[NSKeyedArchiver archivedDataWithRootObject:c.navigationItem]]
                                                  animated:NO];
                 }
             }
@@ -430,6 +443,38 @@
 }
 
 #pragma mark - Public Methods
+
+- (void)setNavigationBarHidden:(BOOL)navigationBarHidden
+{
+    [self setNavigationBarHidden:navigationBarHidden
+                        animated:NO];
+}
+
+- (void)setNavigationBarHidden:(BOOL)hidden animated:(BOOL)animated
+{
+    if (self.isNavigationBarHidden == hidden)
+        return;
+    _navigationBarHidden = hidden;
+    
+    if (!hidden)
+        [_contentView addSubview:_navigationBar];
+    
+    [UIView animateWithDuration:animated?0.25:0.0
+                          delay:0.0
+                        options:UIViewAnimationOptionCurveEaseOut
+                     animations:^{
+                         CGFloat h = _navigationBar.bounds.size.height;
+                         _navigationBar.transform = CGAffineTransformMakeTranslation(0, hidden ? -h : 0);
+                         CGRect rect = _contentView.bounds;
+                         rect.origin.y = hidden ? 0 : h;
+                         rect.size.height -= hidden ? 0 : h;
+                         _containerView.frame = rect;
+                     }
+                     completion:^(BOOL finished) {
+                         if (hidden)
+                             [_navigationBar removeFromSuperview];
+                     }];
+}
 
 - (void)pushViewController:(UIViewController *)viewController
                   animated:(BOOL)animated

@@ -326,6 +326,7 @@
 		9C3420AF1707410700FCEC5D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RTNavigationController/RTNavigationController-Prefix.pch";
 				INFOPLIST_FILE = "RTNavigationController/RTNavigationController-Info.plist";
@@ -337,6 +338,7 @@
 		9C3420B01707410700FCEC5D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RTNavigationController/RTNavigationController-Prefix.pch";
 				INFOPLIST_FILE = "RTNavigationController/RTNavigationController-Info.plist";

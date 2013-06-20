@@ -68,12 +68,15 @@ typedef enum {
 @property (nonatomic, assign) NavigationTranslationStyle translationStyle;
 @property (nonatomic, readonly) NavigationState state;
 
-
 - (id)initWithRootViewController:(UIViewController*)controller;
 
 - (void)pushViewController:(UIViewController*)viewController
                   animated:(BOOL)animated;
 - (UIViewController*)popViewControllerAnimated:(BOOL)animated;
+
+@property(nonatomic,getter=isNavigationBarHidden) BOOL navigationBarHidden;
+- (void)setNavigationBarHidden:(BOOL)hidden animated:(BOOL)animated;
+
 /*
 - (NSArray*)popToRootViewControllerAnimated:(BOOL)animated;
 - (NSArray*)popToViewController:(UIViewController *)viewController

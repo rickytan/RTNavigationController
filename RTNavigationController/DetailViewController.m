@@ -77,7 +77,9 @@
 
 - (UIViewController*)nextViewControllerForRTNavigationController:(RTNavigationController*)controller
 {
-    return [[[UITableViewController alloc] initWithStyle:UITableViewStyleGrouped] autorelease];
+    UIViewController *c = [[[UITableViewController alloc] initWithStyle:UITableViewStyleGrouped] autorelease];
+    c.title = @"Comment";
+    return c;
 }
 
 @end
