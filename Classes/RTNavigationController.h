@@ -74,7 +74,8 @@ typedef enum {
                   animated:(BOOL)animated;
 - (UIViewController*)popViewControllerAnimated:(BOOL)animated;
 
-@property(nonatomic,getter=isNavigationBarHidden) BOOL navigationBarHidden;
+@property (nonatomic, readonly) UINavigationBar *navigationBar;
+@property (nonatomic,getter=isNavigationBarHidden) BOOL navigationBarHidden;
 - (void)setNavigationBarHidden:(BOOL)hidden animated:(BOOL)animated;
 
 /*

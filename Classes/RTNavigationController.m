@@ -30,6 +30,7 @@
 
 @implementation RTNavigationController
 @synthesize navigationBarHidden = _navigationBarHidden;
+@synthesize navigationBar = _navigationBar;
 
 - (void)dealloc
 {
@@ -87,7 +88,11 @@
     _maskView.frame = self.view.bounds;
     [self.view addSubview:_maskView];
     
-    _contentView = [[UIView alloc] initWithFrame:self.view.bounds];
+    CGRect rect = self.view.bounds;
+    CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
+    rect.origin.y = CGRectGetMaxY(statusBarFrame);
+    rect.size.height -= CGRectGetMaxY(statusBarFrame);
+    _contentView = [[UIView alloc] initWithFrame:rect];
     [self.view addSubview:_contentView];
     
     _navigationBar = [[UINavigationBar alloc] init];
@@ -95,14 +100,14 @@
     [_navigationBar sizeToFit];
     
     _containerView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(_navigationBar.frame),
-                                                              CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame) - CGRectGetHeight(_navigationBar.frame))];
+                                                              CGRectGetWidth(_contentView.frame), CGRectGetHeight(_contentView.frame) - CGRectGetHeight(_navigationBar.frame))];
     [_contentView addSubview:_containerView];
     [_contentView addSubview:_navigationBar];
 }
 
 - (void)loadViewTmp
 {
-    _contentViewTmp = [[UIView alloc] initWithFrame:self.view.bounds];
+    _contentViewTmp = [[UIView alloc] initWithFrame:_contentView.frame];
     _contentViewTmp.backgroundColor = [UIColor clearColor]; 
     
     _navigationBarTmp = [[UINavigationBar alloc] initWithFrame:_navigationBar.bounds];
