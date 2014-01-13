@@ -52,6 +52,8 @@
 
 - (void)dealloc
 {
+    [_currentMiddleViewController.view removeObserver:self
+                                           forKeyPath:@"transform"];
     SAFE_RELEASE(_maskView);
     SAFE_RELEASE(_pan);
     SAFE_RELEASE(_swipe);
@@ -85,7 +87,8 @@
     _maskView.userInteractionEnabled = NO;
     _maskView.alpha = 0.0f;
     _maskView.hidden = YES;
-    
+
+    self.wantsFullScreenLayout = YES;
     self.tapToCenter = YES;
     self.allowOverDrag = YES;
     self.middleTranslationStyle = MiddleViewTranslationStyleDefault;
@@ -114,6 +117,7 @@
     //self.view.multipleTouchEnabled = NO;
     
     _maskView.frame = self.view.bounds;
+    _maskView.autoresizesSubviews = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:_maskView];
 }
 
@@ -704,26 +708,26 @@
 {
     if (!_currentRightViewController.isViewLoaded) {
         _currentRightViewController.view.transform = CGAffineTransformIdentity;
-        if (_sideControllerFlags.shouldAdjustRightWidth)
-            _currentRightViewController.view.frame = UIEdgeInsetsInsetRect(self.view.bounds, UIEdgeInsetsMake(0, [self marginForSlidingLeft], 0, 0));
-        else
-            _currentRightViewController.view.frame = self.view.bounds;
     }
     [self.view insertSubview:_currentRightViewController.view
                 belowSubview:_maskView];
+    if (_sideControllerFlags.shouldAdjustRightWidth)
+        _currentRightViewController.view.frame = UIEdgeInsetsInsetRect(self.view.bounds, UIEdgeInsetsMake(0, [self marginForSlidingLeft], 0, 0));
+    else
+        _currentRightViewController.view.frame = self.view.bounds;
 }
 
 - (void)loadLeftViewController
 {
     if (!_currentLeftViewController.isViewLoaded) {
         _currentLeftViewController.view.transform = CGAffineTransformIdentity;
-        if (_sideControllerFlags.shouldAdjustLeftWidth)
-            _currentLeftViewController.view.frame = UIEdgeInsetsInsetRect(self.view.bounds, UIEdgeInsetsMake(0, 0, 0, [self marginForSlidingRight]));
-        else
-            _currentLeftViewController.view.frame = self.view.bounds;
     }
     [self.view insertSubview:_currentLeftViewController.view
                 belowSubview:_maskView];
+    if (_sideControllerFlags.shouldAdjustLeftWidth)
+        _currentLeftViewController.view.frame = UIEdgeInsetsInsetRect(self.view.bounds, UIEdgeInsetsMake(0, 0, 0, [self marginForSlidingRight]));
+    else
+        _currentLeftViewController.view.frame = self.view.bounds;
 }
 
 #pragma mark - UIGesture Delegate

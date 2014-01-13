@@ -90,8 +90,8 @@
     
     CGRect rect = self.view.bounds;
     CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
-    rect.origin.y = CGRectGetMaxY(statusBarFrame);
-    rect.size.height -= CGRectGetMaxY(statusBarFrame);
+    //rect.origin.y = CGRectGetMaxY(statusBarFrame);
+    //rect.size.height -= CGRectGetMaxY(statusBarFrame);
     _contentView = [[UIView alloc] initWithFrame:rect];
     [self.view addSubview:_contentView];
     
@@ -504,7 +504,7 @@
     
     [self transitionFromViewController:self.topViewController
                       toViewController:viewController
-                              duration:0.35
+                              duration:animated ? 0.35 : 0.0
                                options:UIViewAnimationOptionCurveEaseInOut
                             animations:^{
                                 viewController.view.transform = CGAffineTransformIdentity;

@@ -91,11 +91,14 @@ typedef enum {
     } _sideControllerFlags;
 }
 
-@property (nonatomic, assign) id<RTSiderViewControllerDatasource> dataSource;
-@property (nonatomic, assign) id<RTSiderViewControllerDelegate> delegate;     // Not Implemented yet!
+@property (nonatomic, assign) IBOutlet id<RTSiderViewControllerDatasource> dataSource;
+@property (nonatomic, assign) IBOutlet id<RTSiderViewControllerDelegate> delegate;     // Not Implemented yet!
 @property (nonatomic, assign) SlideTranslationStyle translationStyle;
 @property (nonatomic, assign) MiddleViewTranslationStyle middleTranslationStyle;
 @property (nonatomic, readonly) SlideState state;
+@property (nonatomic, readonly) UIViewController * currentMiddleViewController;
+@property (nonatomic, readonly) UIViewController * currentLeftViewController;
+@property (nonatomic, readonly) UIViewController * currentRightViewController;
 @property (nonatomic, assign) BOOL allowOverDrag;   // default YES
 @property (nonatomic, assign) BOOL tapToCenter;    // default YES
 
