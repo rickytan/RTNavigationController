@@ -139,6 +139,15 @@
     
 }
 
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    if (self.state == SlideStateLeft)
+        [self loadLeftViewController];
+    else if (self.state == SlideStateRight)
+        [self loadRightViewController];
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
