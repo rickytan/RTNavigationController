@@ -618,7 +618,8 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 {
     UIViewController *c = self.parentViewController;
     while (c) {
-        if ([c isKindOfClass:[RTNavigationController class]])
+        if ([c isKindOfClass:[RTNavigationController class]] ||
+            [c isKindOfClass:[UINavigationController class]])
             return (RTNavigationController*)c;
         c = c.parentViewController;
     }
