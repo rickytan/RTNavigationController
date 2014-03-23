@@ -690,7 +690,7 @@
                          if (finished)
                              self.state = SlideStateMiddle;
                          _currentMiddleViewController.view.userInteractionEnabled = YES;
-                         [_currentLeftViewController viewDidAppear:YES];
+                         [_currentMiddleViewController viewDidAppear:YES];
                      }];
 }
 
